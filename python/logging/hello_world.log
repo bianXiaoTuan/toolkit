@@ -1,0 +1,3 @@
+Tue, 08 Dec 2015 19:21:42 hello_world.py[line:16] DEBUG This is a debug message
+Tue, 08 Dec 2015 19:21:42 hello_world.py[line:17] INFO This is a info message
+Tue, 08 Dec 2015 19:21:42 hello_world.py[line:18] WARNING This is a warning message

@@ -2,10 +2,9 @@
 #_*_ encoding=utf-8 _*_
 
 import csv
-import json
 from math import sqrt
 
-def build_movie_critics(csv_file, max_count=10000):
+def build_movie_critics(csv_file):
     '''读取csv文件,构建critics
     userId,movieId,rating,timestamp
 
@@ -17,18 +16,12 @@ def build_movie_critics(csv_file, max_count=10000):
     '''
     critics = {}
     reader = csv.reader(file(csv_file, 'rU'))
-
-    count = 0
     for line in reader:
-        if count >= max_count:
-            break
-
         user_id,movie_id,rating,timestamp = line
 
         critics.setdefault(movie_id, {})
         critics[movie_id][user_id] = float(rating)
 
-        count = count + 1
 
     return critics
 
@@ -91,40 +84,9 @@ def sim_pearson(prefs, user1, user2):
     denominator = sqrt((n * sumX2 - pow(sumX, 2)) * (n * sumY2 - pow(sumY, 2)))
 
     if denominator == 0:
-        return 0
+        return 1
 
     return element / denominator
-
-
-# def sim_pearson(prefs, person1, person2):
-#     '''皮尔逊相关系数
-#     '''
-#     si = [item for item in prefs[person1] if item in prefs[person2]]
-#
-#     length = len(si)
-#     if length == 0:
-#         return 0
-#
-#     # 计算所有偏好和
-#     sum1 = sum([prefs[person1][item] for item in si])
-#     sum2 = sum([prefs[person2][item] for item in si])
-#
-#     # 求平方和
-#     sum1Sq = sum([pow(prefs[person1][item], 2) for item in si])
-#     sum2Sq = sum([pow(prefs[person2][item], 2) for item in si])
-#
-#     # 求乘机和
-#     pSum = sum([prefs[person1][item] * prefs[person2][item] for item in si])
-#
-#     # 计算皮尔逊评价值
-#     num = pSum - sum1 * sum2 / length
-#     den = sqrt((sum1Sq - pow(sum1, 2) / length) * (sum2Sq - pow(sum2, 2) / length))
-#
-#     if den == 0:
-#         return 0
-#
-#     return num / den
-
 
 def top_matchs(prefs, user, similarity=sim_pearson):
     '''按照similarity相似度计算函数, 返回按user相似度排序map
@@ -133,13 +95,41 @@ def top_matchs(prefs, user, similarity=sim_pearson):
 
     scores.sort()
     scores.reverse()
-
     return scores
+
+def get_recommendations(prefs, user, similarity=sim_pearson):
+    '''推荐
+    '''
+    movie_score_sum = {}
+    movie_sim_sum = {}
+    for other in prefs:
+        if other == user:
+            continue
+
+        # 计算相似度
+        sim = similarity(prefs, user, other)
+        if sim == 0:
+            continue
+
+        # 电影打分
+        for movie in prefs[other]:
+            # 看过电影不推荐
+            if movie in prefs[user]:
+                continue
+
+            movie_score_sum.setdefault(movie, 0)
+            movie_score_sum[movie] += prefs[other][movie] * sim
+
+            movie_sim_sum.setdefault(movie, 0)
+            movie_sim_sum[movie] += sim
+
+        rankings = [(score/movie_sim_sum[movie], movie) for movie,score in movie_score_sum.items()]
+
+        rankings.sort()
+        rankings.reverse()
+        return rankings
 
 if __name__ == '__main__':
     critics = build_user_critics('ml-latest/ratings.csv')
-
-    print sim_pearson(critics, '9944', '9943')
-
-    print top_matchs(critics, '9944')
+    print get_recommendations(critics, '9797')
 

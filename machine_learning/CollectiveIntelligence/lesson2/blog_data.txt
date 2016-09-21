@@ -1,5 +1,15 @@
-Blog	blog	to	app	new	of	your	from	there	is	an	party	why	i
-Jeremy Zawodny's blog	0	0	0	0	0	0	0	0	0	0	0	1	1
-Creating Passionate Users	1	1	1	0	0	1	0	0	2	1	1	1	1
-Joi Ito's Web	1	0	0	1	4	0	1	1	0	0	1	0	0
-The Official Google Blog	0	8	2	3	4	1	2	2	1	1	0	0	0
+Blog	all	finally	video	new	social	app	from	iphone	more	this	movies	vs	meet	my	history	trump	provide	how	through	still	allo	they	not	now	idea	out	space	foundation	one	too	design	most	why	m	do	blogging	art	culture	see	are	best	future	taking	s	games	news	life	photos	guide	it	party	director	user	i	blog	has	refugees	google	people	twitter	back	be	by	getting	messaging	or	your	there	start	way	bubble	media	ad	an	at	you	users	chris	age
+	2	1	0	0	0	0	0	0	1	0	0	0	0	0	0	3	0	0	0	1	0	1	0	0	0	0	0	1	0	1	0	0	0	0	1	0	0	0	0	1	0	0	1	5	0	0	0	0	0	0	0	0	0	0	0	0	2	0	1	0	0	0	0	0	0	1	0	0	1	1	0	0	0	0	0	0	0	1	0
+PaulStamatiou.com - Technology, Design and Photography	0	0	1	1	0	2	0	2	0	0	0	0	0	3	0	0	1	1	0	0	0	0	0	0	1	0	0	0	0	0	1	0	0	0	0	1	0	1	0	0	0	0	0	1	0	1	1	0	0	0	0	0	1	2	0	0	0	1	0	3	0	0	1	2	0	0	0	0	0	0	0	0	1	0	0	0	0	0	0
+The Viral Garden	0	0	0	0	13	0	0	0	0	1	0	1	1	1	0	0	0	3	0	1	0	0	1	0	1	1	1	0	1	0	0	1	0	1	0	3	0	0	1	2	1	0	0	2	0	0	0	0	1	1	0	0	0	3	1	1	0	0	0	3	1	4	0	1	0	1	2	0	0	1	1	11	1	0	0	3	1	0	1
+Joi Ito's Web	0	0	0	1	0	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0	0	0	0	0	0	1	1	0	0	1	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	1	0	0	0	0	0	0	0	1
+The Official Google Blog	2	0	1	3	0	2	2	0	1	0	1	0	1	0	2	0	0	0	1	0	1	0	0	2	0	0	0	1	1	0	0	0	0	0	0	0	1	4	2	0	0	1	0	2	1	0	1	2	1	0	0	0	0	0	0	0	1	9	0	0	1	1	0	0	1	1	1	2	1	3	0	0	0	1	0	3	0	0	0
+Jeremy Zawodny's blog	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0	0
+http://michellemalkin.com/index.rdf
+	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+http://powerlineblog.com/index.rdf
+	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+http://beta.blogger.com/feeds/27154654/posts/full?alt=rss
+	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+Creating Passionate Users	0	0	0	0	0	1	0	0	0	0	0	0	0	2	0	0	0	1	0	0	0	0	1	0	0	0	0	0	0	1	1	0	1	0	1	0	0	0	0	1	0	1	0	0	0	0	0	0	0	1	1	0	1	1	1	0	0	0	0	1	0	0	0	0	0	0	1	0	0	0	0	0	0	1	0	0	1	1	0
+Mashable	1	1	0	0	1	1	5	1	0	1	2	0	0	0	2	1	1	0	1	1	1	1	0	3	0	1	1	0	0	0	0	2	0	0	0	0	1	0	0	3	1	0	1	7	1	1	0	1	0	4	0	1	0	0	0	2	0	1	1	0	0	0	2	0	1	0	0	0	0	0	0	1	1	1	3	4	0	0	0

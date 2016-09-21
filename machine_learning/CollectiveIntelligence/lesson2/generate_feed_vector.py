@@ -55,7 +55,7 @@ def build_feed_vector(file):
 
     # 读取RSS源, 生成各博客关键词的wordcounts
     fd = open(file)
-    for url in fd.readlines()[0:4]:
+    for url in fd.readlines():
         blog_title,word_counts = get_wordcouts(url)
         total_word_counts[blog_title] = word_counts
 
@@ -68,7 +68,7 @@ def build_feed_vector(file):
         blog_count += 1
 
     # 构建word_list
-    word_list = build_word_list(total_word_blog_counts, blog_count, 0.4, 0.6)
+    word_list = build_word_list(total_word_blog_counts, blog_count, 0.1, 0.5)
 
     # 构建blog 和 word矩阵写入文件blog_data.txt
     out = open('blog_data.txt', 'w')

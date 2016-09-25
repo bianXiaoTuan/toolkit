@@ -1,21 +1,23 @@
-Blog	on	in	a	the
-http://headrush.typepad.com/creating_passionate_users/index.rdf
-	0	0	0	0
-	3	2	1	4
-http://powerlineblog.com/index.rdf
-	0	0	0	0
-http://googleblog.blogspot.com/rss.xml
-	0	0	0	0
-http://beta.blogger.com/feeds/27154654/posts/full?alt=rss
-	0	0	0	0
-http://joi.ito.com/index.rdf
-	0	0	0	0
-http://feeds.feedburner.com/paulstamatiou
-	0	0	0	0
-http://michellemalkin.com/index.rdf
-	0	0	0	0
-Jeremy Zawodny's blog	1	1	1	1
-http://moblogsmoproblems.blogspot.com/rss.xml
-	0	0	0	0
-http://feeds.feedburner.com/Mashable
-	0	0	0	0
+Blog	tech	week	video	debate	state	utah	students
+www.newyorker.com	0	0	0	1	0	0	0
+davidkphotography.com	0	0	0	0	0	0	0
+rssfeeds.thespectrum.com	0	0	0	0	1	3	0
+www.techworld.com	3	0	0	0	0	0	0
+www.si.com	0	1	0	0	4	0	0
+www.sltrib.com	1	1	2	0	1	16	0
+www.smartbrief.com	1	0	0	1	0	0	1
+www.uen.org	0	0	1	1	0	2	0
+www.pbs.org	0	0	0	0	0	0	0
+www.nasa.gov	0	0	0	0	0	0	0
+rss.macworld.com	1	4	1	0	0	0	0
+www.techlearning.com	1	0	0	0	0	0	1
+feeds.pcworld.com	2	2	1	0	0	0	0
+hosted.ap.org	0	0	0	0	1	0	0
+www.npr.org	0	0	0	0	0	0	0
+dictionary.reference.com	0	0	0	0	0	0	0
+rssfeeds.usatoday.com	0	1	1	1	0	0	0
+www.nba.com	0	0	0	0	0	0	0
+www.ed.gov	0	0	0	0	1	0	7
+feeds.wired.com	0	1	0	0	0	0	0
+www.ksl.com	1	1	0	1	0	5	1
+www.utah.gov	0	0	0	0	4	4	1

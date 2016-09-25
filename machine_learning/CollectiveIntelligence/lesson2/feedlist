@@ -1,11 +1,64 @@
-http://headrush.typepad.com/creating_passionate_users/index.rdf
-http://jeremy.zawodny.com/blog/rss2.xml
-http://joi.ito.com/index.rdf
-http://feeds.feedburner.com/Mashable
-http://michellemalkin.com/index.rdf
-http://moblogsmoproblems.blogspot.com/rss.xml
-http://newsbusters.org/node/feed
-http://beta.blogger.com/feeds/27154654/posts/full?alt=rss
-http://feeds.feedburner.com/paulstamatiou
-http://powerlineblog.com/index.rdf
-http://googleblog.blogspot.com/rss.xml
+# World News
+http://hosted.ap.org/lineups/USHEADS-rss_2.0.xml?SITE=RANDOM&SECTION=HOME
+http://rssfeeds.usatoday.com/usatoday-NewsTopStories
+http://www.npr.org/rss/rss.php?id=1001
+http://feeds.reuters.com/reuters/topNews
+
+# Local News
+http://www.sltrib.com/rss/feed/?sec=/News/Utah/&level=1
+http://www.deseretnews.com/site/rss
+http://www.ksl.com/xml/148.rss
+http://www.utah.gov/whatsnew/rss.xml
+http://rssfeeds.thespectrum.com/stgeorge/news
+http://topics.nytimes.com/top/news/national/usstatesterritoriesandpossessions/utah/index.html?inline=nyt-geo&rss=1
+
+# Education News
+http://www.uen.org/feeds/rss/news.xml.php
+https://www.ed.gov/feed
+http://www.smartbrief.com/servlet/rss?b=ASCD
+http://www.npr.org/rss/rss.php?id=1013
+http://www.techlearning.com/RSS
+
+# Science
+http://hosted.ap.org/lineups/SCIENCEHEADS-rss_2.0.xml?SITE=OHLIM&SECTION=HOME
+http://feeds.sciencedaily.com/sciencedaily
+http://feeds.nature.com/nature/rss/current
+http://www.nasa.gov/rss/image_of_the_day.rss
+
+# Technology
+http://www.techlearning.com/RSS
+http://feeds.wired.com/wired/index
+http://feeds.nytimes.com/nyt/rss/Technology
+http://www.npr.org/rss/rss.php?id=1019
+http://feeds.feedburner.com/time/gadgetoftheweek
+http://feeds.surfnetkids.com/SurfingTheNetWithKids
+
+# Macworld
+http://rss.macworld.com/macworld/feeds/main
+http://feeds.pcworld.com/pcworld/latestnews
+http://www.techworld.com/news/rss
+
+# PBS
+http://feeds.feedburner.com/FrontlineEditorsNotes
+http://www.pbs.org/wgbh/nova/rss/nova.xml
+
+# For Kids
+http://dictionary.reference.com/wordoftheday/wotd.rss
+
+# Sports
+http://hosted.ap.org/lineups/SPORTSHEADS-rss_2.0.xml?SITE=VABRM&SECTION=HOME
+http://www.si.com/rss/si_topstories.rss
+http://feeds1.nytimes.com/nyt/rss/Sports
+http://www.nba.com/jazz/rss.xml
+
+# Entertainment
+http://www.npr.org/rss/rss.php?id=1008
+http://www.newyorker.com/feed/humor
+http://www.npr.org/rss/rss.php?id=13
+http://www.npr.org/rss/rss.php?id=1045
+http://www.nationalgeographic.com/adventure/nga.xml
+
+# Photos
+http://feeds.feedburner.com/TheDailyPuppy
+http://davidkphotography.com/index.php?x=rss
+http://feeds.feedburner.com/animals

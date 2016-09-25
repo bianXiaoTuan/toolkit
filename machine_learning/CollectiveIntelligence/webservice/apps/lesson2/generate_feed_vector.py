@@ -8,6 +8,9 @@ from multiprocessing import Pool
 def get_words(sentence):
     '''分词
     '''
+    # 去除HTML标记
+    sentence = re.compile(r'<[^>]+>').sub('', sentence)
+    # 过滤word
     words = re.compile(r'[^A-Z^a-z]').split(sentence)
     return [word.lower() for word in words if word != '']
 
@@ -19,7 +22,12 @@ def get_wordcouts(url):
 
     wordcounts = {}
     for entry in entries:
-        words = get_words(entry['title'])
+        if 'summary' in entry:
+            summary = entry.summary
+        else :
+            summary = entry.description
+
+        words = get_words(summary)
 
         for word in words:
             wordcounts.setdefault(word, 0)

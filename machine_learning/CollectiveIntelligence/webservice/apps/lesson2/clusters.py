@@ -44,7 +44,6 @@ def get_blog_words(filename):
 
     # 第一行是words
     word_names = lines[0].strip().split('\t')
-    print word_names
 
     blog_words = []
     for line in lines[1:]:
@@ -155,6 +154,7 @@ if __name__ == '__main__':
     rownames,clonames,data = readfile('blog_data.txt')
 
     cluster = hcluster(data)
+    blog_names = rownames
     blog_words = get_blog_words('blog_data.txt')
 
-    print_cluster(cluster, labels=blog_words)
+    print_cluster(cluster, labels=blog_names)

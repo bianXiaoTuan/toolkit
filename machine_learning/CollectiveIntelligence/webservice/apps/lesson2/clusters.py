@@ -3,6 +3,7 @@
 
 import sys
 import json
+import random
 sys.path.append('..')
 from common.similarity import *
 
@@ -96,7 +97,7 @@ def get_closest_pair(cluster, distances, distance=sim_pearson):
     return closest_pair,closest_distance
 
 def hcluster(rows, distance=sim_pearson):
-    ''' 聚类算法, 将相似度最高两个节点合成聚类
+    ''' 分级聚类算法, 将相似度最高两个节点合成聚类
     '''
     distances = {}
     current_cluster_id = -1
@@ -129,6 +130,84 @@ def hcluster(rows, distance=sim_pearson):
 
     return cluster[0]
 
+def get_word_count_range(rows):
+    ''' 返回每个word出现过最大值和最小值
+
+    :param rows:  [[1, 2, 3], [2, 4, 5]]
+    :return: [(min, max), (min, max), (min, max)]
+    '''
+    return [(min([row[i] for row in rows]), max([row[i] for row in rows])) for i in range(len(rows[0]))]
+
+def get_k_clusters_random(ranges, rows, k):
+    ''' 随机创建k个中心点
+
+    return: [] e.g. [[1, 2, 3]]
+    '''
+    clusters = []
+    for j in range(k):
+        point = []
+        for i in range(len(rows[0])):
+            max = ranges[i][1]
+            min = ranges[i][0]
+
+            delta = random.random() * (max - min)
+            point.append(min + delta)
+
+        clusters.append(point)
+
+    return clusters
+
+def kcluster(rows, distance=sim_pearson, k=4):
+    ''' K-均值聚类算法
+    '''
+    # 每个word出现最小最大次数
+    ranges = get_word_count_range(rows)
+
+    # 随机创建k个中心点
+    clusters = get_k_clusters_random(ranges, rows, k)
+
+    last_matches = None
+    for t in range(100):
+        print 'Iteration %d' % t
+
+        best_matches = [[] for i in range(k)]
+
+        # 在每一行中寻找距离最近中心点
+        for j in range(len(rows)):
+            row = rows[j]
+            best_match = 0
+
+            for i in range(k):
+                d = distance(clusters[i], row)
+                if d < distance(clusters[best_match], row):
+                    best_match = i
+            best_matches[best_match].append(j)
+
+        # 如果结果和上次相同, 则整个过程结束
+        if best_matches == last_matches:
+            break
+        last_matches = best_matches
+
+        # 把中心点移动到其所在成员平均位置
+        for i in range(k):
+            avgs = [0.0] * len(rows[0])
+            if len(best_matches[i]) > 0:
+                for row_id in best_matches[i]:
+                    for m in range(len(rows[row_id])):
+                        avgs[m] += rows[row_id][m]
+
+                for j in range(len(avgs)):
+                    avgs[j] /= len(best_matches[i])
+                clusters[i] = avgs
+
+    return best_matches
+
+
+
+
+
+
+
 def print_cluster(cluster, labels=None, n=0):
     ''' 利用缩进来建立层级关系
     '''
@@ -152,9 +231,9 @@ def print_cluster(cluster, labels=None, n=0):
 
 if __name__ == '__main__':
     rownames,clonames,data = readfile('blog_data.txt')
+    kcluster(data)
 
-    cluster = hcluster(data)
-    blog_names = rownames
-    blog_words = get_blog_words('blog_data.txt')
-
-    print_cluster(cluster, labels=blog_names)
+    # cluster = hcluster(data)
+    # blog_names = rownames
+    # blog_words = get_blog_words('blog_data.txt')
+    # print_cluster(cluster, labels=blog_names)

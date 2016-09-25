@@ -49,7 +49,7 @@ def sim_pearson(vec1, vec2):
 def test():
     ''' 检查import该文件是否成功
     '''
-    print 'HelloWorld'
+    return 'HelloWorld'
 
 if __name__ == '__main__':
     vec1 = [0, 1, 2, 3, 4, 5]

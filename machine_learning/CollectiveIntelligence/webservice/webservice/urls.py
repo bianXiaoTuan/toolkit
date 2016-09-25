@@ -19,5 +19,7 @@ import apps.views
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^apps/', apps.views.index),
+
+    url(r'^index/', apps.views.index),
+    url(r'^import/', apps.views.importcommon),
 ]

@@ -1,4 +1,4 @@
-*/*/target
-*/*/.idea
-*/*/*/.idea
-/*/*/*/ml-latest
+*.pyc
+target
+.idea
+ml-latest

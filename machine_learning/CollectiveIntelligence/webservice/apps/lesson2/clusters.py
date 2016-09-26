@@ -141,14 +141,14 @@ def get_word_count_range(rows):
 def get_k_clusters_random(ranges, rows, k):
     ''' 随机创建k个中心点
 
-    return: [] e.g. [[1, 2, 3]]
+    return: [] k个随机点坐标 e.g. [[1, 2, 3]]
     '''
     clusters = []
     for j in range(k):
         point = []
         for i in range(len(rows[0])):
-            max = ranges[i][1]
             min = ranges[i][0]
+            max = ranges[i][1]
 
             delta = random.random() * (max - min)
             point.append(min + delta)
@@ -160,53 +160,63 @@ def get_k_clusters_random(ranges, rows, k):
 def kcluster(rows, distance=sim_pearson, k=4):
     ''' K-均值聚类算法
     '''
-    # 每个word出现最小最大次数
+    # word出现最小最大次数
     ranges = get_word_count_range(rows)
 
     # 随机创建k个中心点
     clusters = get_k_clusters_random(ranges, rows, k)
 
     last_matches = None
-    for t in range(100):
-        print 'Iteration %d' % t
+    while 迭代未结算:
+        # 每个row距离最近的中心点
+        best_matches = get_best_matches()
 
-        best_matches = [[] for i in range(k)]
-
-        # 在每一行中寻找距离最近中心点
-        for j in range(len(rows)):
-            row = rows[j]
-            best_match = 0
-
-            for i in range(k):
-                d = distance(clusters[i], row)
-                if d < distance(clusters[best_match], row):
-                    best_match = i
-            best_matches[best_match].append(j)
-
-        # 如果结果和上次相同, 则整个过程结束
-        if best_matches == last_matches:
+        if last_matches == best_matches:
             break
+
+        # 计算新中心点, 为匹配最近点的平均值
+        clusters = get_clusters()
+
         last_matches = best_matches
-
-        # 把中心点移动到其所在成员平均位置
-        for i in range(k):
-            avgs = [0.0] * len(rows[0])
-            if len(best_matches[i]) > 0:
-                for row_id in best_matches[i]:
-                    for m in range(len(rows[row_id])):
-                        avgs[m] += rows[row_id][m]
-
-                for j in range(len(avgs)):
-                    avgs[j] /= len(best_matches[i])
-                clusters[i] = avgs
 
     return best_matches
 
-
-
-
-
-
+    # last_matches = None
+    # for t in range(100):
+    #     print 'Iteration %d' % t
+    #
+    #     best_matches = [[] for i in range(k)]
+    #
+    #     # 每一行中寻找距离最近中心点
+    #     for j in range(len(rows)):
+    #         row = rows[j]    # row表示一个点坐标
+    #         best_match = 0
+    #
+    #         # 和每个随机中心点匹配
+    #         for i in range(k):
+    #             d = distance(clusters[i], row)
+    #             if d < distance(clusters[best_match], row):
+    #                 best_match = i
+    #         best_matches[best_match].append(j)
+    #
+    #     # 如果结果和上次相同, 则整个过程结束
+    #     if best_matches == last_matches:
+    #         break
+    #     last_matches = best_matches
+    #
+    #     # 把中心点移动到其所在成员平均位置
+    #     for i in range(k):
+    #         avgs = [0.0] * len(rows[0])
+    #         if len(best_matches[i]) > 0:
+    #             for row_id in best_matches[i]:
+    #                 for m in range(len(rows[row_id])):
+    #                     avgs[m] += rows[row_id][m]
+    #
+    #             for j in range(len(avgs)):
+    #                 avgs[j] /= len(best_matches[i])
+    #             clusters[i] = avgs
+    #
+    # return best_matches
 
 def print_cluster(cluster, labels=None, n=0):
     ''' 利用缩进来建立层级关系

@@ -3,6 +3,23 @@
 
 from math import *
 
+def tanimoto(vec1, vec2):
+    ''' Tanimoto系数度量方法
+    '''
+    count1 = 0
+    count2 = 0
+    share = 0
+
+    for i in range(len(vec1)):
+        if vec1[i] != 0:
+            count1 += 1
+        if vec2[i] != 0:
+            count2 += 1
+        if vec1[i] != 0 and vec2[i] !=0 :
+            share += 1
+
+    return 1.0 - (float(share) / (count1 + count22 - share))
+
 def sim_distance(vec1, vec2):
     ''' 根据欧几里得距离返回两个人相似系数
 
@@ -58,4 +75,8 @@ if __name__ == '__main__':
 
     print sim_pearson(vec1, vec2)
     print sim_pearson(vec2, vec3)
+
+    print tanimoto(vec1, vec2)
+    print tanimoto(vec2, vec3)
+
 

@@ -274,11 +274,19 @@ def print_cluster(cluster, labels=None, n=0):
     if cluster.right != None:
         print_cluster(cluster.right, labels=labels, n=n+1)
 
+def print_k_cluster(clusters, blog_names):
+    ''' 打印聚类结果
+    '''
+    print [[blog_names[i] for i in cluster]for cluster in clusters]
+
 if __name__ == '__main__':
     rownames,clonames,data = readfile('blog_data.txt')
-    print kcluster(data, k=3)
+
+    blog_names = rownames
+    clusters = kcluster(data, k=11)
+
+    print_k_cluster(clusters, blog_names)
 
     # cluster = hcluster(data)
-    # blog_names = rownames
     # blog_words = get_blog_words('blog_data.txt')
     # print_cluster(cluster, labels=blog_names)

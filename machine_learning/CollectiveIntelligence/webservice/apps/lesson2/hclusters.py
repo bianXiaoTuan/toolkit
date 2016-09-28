@@ -113,9 +113,9 @@ def hcluster(rows, distance=sim_pearson):
 
         # 建立新聚类
         new_bi_cluster = BiCluster(merge_vec,
-                                left=cluster[closest_pair[0]],
-                                right=cluster[closest_pair[1]],
-                                distance=closest_distance, id=current_cluster_id)
+                                   left=cluster[closest_pair[0]],
+                                   right=cluster[closest_pair[1]],
+                                   distance=closest_distance, id=current_cluster_id)
 
         # 不在原始集合中聚类, 其id为负数
         current_cluster_id -= 1
@@ -131,127 +131,6 @@ def hcluster(rows, distance=sim_pearson):
 
     return cluster[0]
 
-def get_word_count_range(rows):
-    ''' 返回每个word出现过最大值和最小值
-
-    :param rows:  [[1, 2, 3], [2, 4, 5]]
-    :return: [(min, max), (min, max), (min, max)]
-    '''
-    return [(min([row[i] for row in rows]), max([row[i] for row in rows])) for i in range(len(rows[0]))]
-
-def get_k_clusters_random(rows, k):
-    ''' 随机创建k个中心点
-
-    return: [] k个随机点坐标 e.g. [[1, 2, 3]]
-    '''
-    # 每个word出现最小~最大范围
-    ranges = get_word_count_range(rows)
-
-    clusters = []
-    for j in range(k):
-        point = []
-        for i in range(len(rows[0])):
-            min = ranges[i][0]
-            max = ranges[i][1]
-
-            delta = random.random() * (max - min)
-            point.append(min + delta)
-
-        clusters.append(point)
-
-    return clusters
-
-def get_closest_mid_point(row, clusters, distance=sim_pearson):
-    ''' 返回距离当前点最近中心点index
-
-    :param row: [1, 2, 3] 当前点坐标
-    :param clusters: [[1, 2, 3]] * k 中心点坐标
-    :return: int 距离最近中心点坐标
-    '''
-    closest_index = 0    # 距离哪个中心点最近
-    closest_distance = distance(row, clusters[0])    # 距离中心点最近距离为多少
-    for j in range(len(clusters)):
-        d = distance(row, clusters[j])
-        if d <= closest_distance:
-            closest_distance = d
-            closest_index = j
-
-    return closest_index
-
-def get_best_matches(rows, clusters, distance=sim_pearson):
-    ''' 将rows中节点分配到距离最近中心点上
-
-    :param rows: [[1, 2, 3, 4], [2, 3, 4, 5], ...] 点坐标
-    :param clusters: [[1, 2, 3, 4]] * k 中心点
-    :param k: int 中心点个数
-    :return: [[]] * k 每个中心点对应最近点
-    '''
-    best_matches = [[] for i in range(len(clusters))]
-
-    for i in range(len(rows)):
-        # 获取当前点距离最近中心点
-        closest_index = get_closest_mid_point(rows[i], clusters, distance)
-        best_matches[closest_index].append(i)
-
-    return best_matches
-
-def get_mid_point(rows, best_match):
-    ''' 求rows中匹配点均值, 返回新的中心节点
-
-    :param rows: [[1, 2, 3, 4], [2, 3, 4, 5]] 点坐标
-    :param best_match: [1, 2] 上述rows中的index
-    :return: [1, 2, 3, 4]
-    '''
-    if len(best_match) == 0:
-        return []
-
-    match_rows = [rows[index] for index in best_match]
-
-    mid_point = []
-    length = len(rows[0])
-    for i in range(length):
-        var = 0.0
-        var += sum([row[i] for row in match_rows])
-        mid_point.append(var / len(best_match))
-
-    return mid_point
-
-def get_new_clusters(rows, best_matches):
-    ''' 创建新的clusters中心点
-
-    :return:
-    '''
-    k = len(best_matches)
-    clusters = [[]] * k
-
-    for i in range(len(best_matches)):
-        clusters[i] = get_mid_point(rows, best_matches[i])
-
-    return clusters
-
-def kcluster(rows, distance=sim_pearson, k=4):
-    ''' K-均值聚类算法
-    '''
-    # 随机创建k个中心点
-    clusters = get_k_clusters_random(rows, k)
-
-    last_matches = None
-    while True:
-        # 删除clusters为0的元素
-        clusters = [cluster for cluster in clusters if len(cluster) != 0]
-
-        # 每个row距离最近的中心点
-        best_matches = get_best_matches(rows, clusters, distance)
-
-        if last_matches == best_matches:
-            break
-
-        last_matches = best_matches
-
-        # 计算新中心点, 为匹配最近点的平均值
-        clusters = get_new_clusters(rows, best_matches)
-
-    return best_matches
 
 def print_cluster(cluster, labels=None, n=0):
     ''' 利用缩进来建立层级关系
@@ -283,10 +162,5 @@ if __name__ == '__main__':
     rownames,clonames,data = readfile('blog_data.txt')
 
     blog_names = rownames
-    clusters = kcluster(data, k=11)
+    print_cluster(hcluster(data), labels=rownames)
 
-    print_k_cluster(clusters, blog_names)
-
-    # cluster = hcluster(data)
-    # blog_words = get_blog_words('blog_data.txt')
-    # print_cluster(cluster, labels=blog_names)

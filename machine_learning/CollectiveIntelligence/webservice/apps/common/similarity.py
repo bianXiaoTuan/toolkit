@@ -3,9 +3,20 @@
 
 from math import *
 
-def tanimoto(vec1, vec2):
+def sim_manhattan(vec1, vec2):
+    ''' Manhattan距离相似度
+    '''
+    if len(vec1) != len(vec2):
+        raise Exception('len(vec1) != len(vec2)')
+
+    return sum([abs(vec1[i] - vec2[i]) for i in range(len(vec1))])
+
+def sim_tanimoto(vec1, vec2):
     ''' Tanimoto系数度量方法
     '''
+    if len(vec1) != len(vec2):
+        raise Exception('len(vec1) != len(vec2)')
+
     count1 = 0
     count2 = 0
     share = 0
@@ -78,5 +89,3 @@ if __name__ == '__main__':
 
     print tanimoto(vec1, vec2)
     print tanimoto(vec2, vec3)
-
-

@@ -2,7 +2,6 @@
 #_*_ encoding=utf-8 _*_
 
 import sys
-import json
 import random
 
 sys.path.append('..')
@@ -93,20 +92,20 @@ def get_mid_point(rows):
 
     return mid_point
 
-def get_mid_points(rows, best_matches):
+def get_mid_points(rows, clusters):
     ''' 创建新的clusters中心点
 
     :return:
     '''
-    k = len(best_matches)
-    clusters = [[]] * k
+    k = len(clusters)
+    mid_points = [[]] * k
 
-    for i in range(len(best_matches)):
+    for i in range(k):
         # 匹配到的rows
-        match_rows = [rows[j] for j in best_matches[i]]
-        clusters[i] = get_mid_point(match_rows)
+        match_rows = [rows[j] for j in clusters[i]]
+        mid_points[i] = get_mid_point(match_rows)
 
-    return clusters
+    return mid_points
 
 def get_clusters(rows, mid_points, distance=sim_pearson):
     ''' 将rows中节点分配到距离最近中心点上
@@ -135,7 +134,7 @@ def kcluster(rows, distance=sim_pearson, k=4):
         # 删除clusters为0的元素
         mid_points = [mid_point for mid_point in mid_points if len(mid_point) != 0]
 
-        # 每个row距离最近的中心点
+        # 每个row距离最近的中心点, 形成聚类
         clusters = get_clusters(rows, mid_points, distance)
 
         if last_clusters == clusters:
@@ -143,7 +142,7 @@ def kcluster(rows, distance=sim_pearson, k=4):
 
         last_clusters = clusters
 
-        # 计算新中心点, 为匹配最近点的平均值
+        # 计算新中心点
         mid_points = get_mid_points(rows, clusters)
 
     return clusters
@@ -157,6 +156,6 @@ if __name__ == '__main__':
     rownames,clonames,data = readfile('blog_data.txt')
 
     blog_names = rownames
-    clusters = kcluster(data, k=11)
-    print_k_cluster(clusters, blog_names)
+    clusters = kcluster(data, k=4)
 
+    print_k_cluster(clusters, blog_names)

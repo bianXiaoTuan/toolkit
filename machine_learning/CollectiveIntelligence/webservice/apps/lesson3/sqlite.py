@@ -2,30 +2,33 @@
 #_*_ encoding=utf-8 _*_
 import sqlite3
 
-def hello_world():
+def create_tables():
     ''' sqlite hello world
     '''
-    conn = sqlite3.connect('/tmp/example')
-
+    # Connect to sqlite
+    conn = sqlite3.connect('sqlite.database')
     c = conn.cursor()
 
-    # Create table
-    c.execute('''create table stocks
-    (date text, trans text, symbol text,
-     qty real, price real)''')
+    # 创建数据库表
+    c.execute('create table url_list(url)')
+    c.execute('create table word_list(word)')
+    c.execute('create table word_location(url_id, word_id, location)')
+    c.execute('create table link(from_id integer, to_id integer)')
+    c.execute('create table link_words(word_id, link_id)')
 
-    # Insert a row of data
-    c.execute("""insert into stocks
-              values ('2006-01-05','BUY','RHAT',100,35.14)""")
+    # 创建索引
+    c.execute('create index url_index on url_list(url)')
+    c.execute('create index word_index on word_list(word)')
+    c.execute('create index word_url_index on word_location(word_id)')
+    c.execute('create index url_to_index on link(to_id)')
+    c.execute('create index url_from_index on link(from_id)')
 
     # Save (commit) the changes
     conn.commit()
-
-    c.execute('select * from stocks')
 
     # We can also close the cursor if we are done with it
     c.close()
 
 if __name__ == '__main__':
-    hello_world()
+    create_tables()
 

@@ -91,4 +91,8 @@ class Crawler:
 
             pages = new_pages
 
+if __name__ == '__main__':
+    pages = ['http://baike.baidu.com/jingji/']
+    crawler = Crawler('')
+    crawler.crawl(pages)
 

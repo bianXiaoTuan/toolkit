@@ -3,3 +3,4 @@
 target
 .idea
 ml-latest
+*.sqlite

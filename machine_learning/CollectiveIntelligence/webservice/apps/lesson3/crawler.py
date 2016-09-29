@@ -17,10 +17,28 @@ class Crawler:
         self.cursor = self.conn.cursor()
         self.ignore_words = set([])
 
+        # 初始化表数据
+        self.clear_table_data()
+
     def __del__(self):
         ''' 清理
         '''
         self.cursor.close()
+
+    def clear_table_data(self):
+        ''' 清除database中数据
+        '''
+        tables = ['url_list', 'word_list', 'link', 'link_words', 'word_location']
+        for table in tables:
+            sql = "DELETE FROM %s" % table
+            self.cursor.execute(sql)
+
+        self.db_commit()
+
+    def get_cursor(self):
+        ''' 返回cursor
+        '''
+        return self.cursor
 
     def db_commit(self):
         ''' 提交数据库变更
@@ -74,16 +92,14 @@ class Crawler:
         else:
             return result[0]
 
-    def add_to_index(self, url, soup):
-        ''' 每个网页建立索引
+    def add_index(self, url, words):
+        ''' 为网页建立索引
+        将URL包含的每个word 和 URL关联起来
         '''
         if self.is_indexed(url):
             return
 
         print 'Indexing ' + url
-
-        # 获取url中单词
-        words = self.get_words(soup)
 
         # 获取url_id
         url_id = self.get_entry_id('url_list', 'url', url)
@@ -91,12 +107,17 @@ class Crawler:
         # 将每个单词和该url关联
         for i in range(len(words)):
             word = words[i]
-            if word in self.ignore_words:
+            if len(word) < 3 or word in self.ignore_words:
                 continue
 
+            # 获取word_id
             word_id = self.get_entry_id('word_list', 'word', word)
 
-            sql = 'INSERT INTO word_location(url_id, word_id, location) VALUES (%d, %d, %d)' % (url_id, word_id, i)
+            sql = '''INSERT INTO
+            word_location(url_id, word_id, location)
+            VALUES (%d, %d, %d)
+            ''' % (url_id, word_id, i)
+
             self.cursor.execute(sql)
 
     def is_indexed(self, url):
@@ -119,6 +140,26 @@ class Crawler:
         '''
         pass
 
+    def get_url_html(self, page):
+        ''' 获取URL的HTML
+
+        :param page: string url
+        :return: None = page无法解析
+        '''
+        try:
+            c = urllib2.urlopen(page)
+        except:
+            print 'Could not open %s' % page
+            return None
+
+        return c.read()
+
+    def is_url(self, url):
+        ''' 检查是以http开头, 为url
+
+        :return: True = 以http开头
+        '''
+        return url[0:4] == 'http'
 
     def crawl(self, pages, depth=2):
         ''' 爬虫进行广度优先搜索, 并为网页建立索引
@@ -127,35 +168,38 @@ class Crawler:
             new_pages = set()
 
             for page in pages:
-                try:
-                    c = urllib2.urlopen(page)
-                except:
-                    print 'Could not open %s' % page
+                html = self.get_url_html(page)
+                if html == None:
                     continue
 
-                soup = BeautifulSoup(c.read())
-                self.add_to_index(page, soup)
+                soup = BeautifulSoup(html, 'html.parser')
+
+                # 获取页面包含words
+                words = self.get_words(soup)
+
+                # 为当前页面添加索引
+                self.add_index(page, words)
 
                 links = soup('a')
                 for link in links:
                     if 'href' in dict(link.attrs):
                         url = urljoin(page, link['href'])
-
-                        if url.find("'") != -1:
-                            continue
-
                         url = url.split('#')[0]
-                        if url[0:4] == 'http' and not self.is_indexed(url):
+
+                        # 检查是否为合格URL, 且未被索引
+                        if self.is_url(url) and not self.is_indexed(url):
                             new_pages.add(url)
 
-                        link_text = self.get_text(link)
-                        self.add_link_ref(page, url, link_text)
+                        # 关联父子链接
+                        self.add_link_ref(page, url, self.get_text(link))
 
+                # 统一提交变更
                 self.db_commit()
-
             pages = new_pages
 
 if __name__ == '__main__':
-    crawler = Crawler('sqlite.database')
-    pages = ['http://baike.baidu.com/jingji/']
+    pages = ['http://chenhuan0103.com']
+
+    crawler = Crawler('database.sqlite')
+    crawler.crawl(pages)
 

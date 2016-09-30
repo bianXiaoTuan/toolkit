@@ -17,6 +17,8 @@ class Crawler:
         self.cursor = self.conn.cursor()
         self.ignore_words = set([])
 
+        self.clear_table_data()
+
     def __del__(self):
         ''' 清理
         '''
@@ -165,6 +167,10 @@ class Crawler:
             new_pages = set()
 
             for page in pages:
+                # 过滤掉非chenhuan0103.com网站
+                if page.find('chenhuan') == -1:
+                    continue
+
                 html = self.get_url_html(page)
                 if html == None:
                     continue

@@ -23,85 +23,80 @@ class SearchEngine:
         '''
         return self.cursor
 
-    def get_rowid_by_value(self, table, field, value):
+    def get_value_by_id(self, table, field, id):
+        ''' 通过rowid获取field的值
+        '''
+        sql = "SELECT %s FROM %s WHERE rowid = %d" % (field, table, id)
+        value = self.cursor.execute(sql).fetchone()[0]
+        return value
+
+    def get_values_by_ids(self, table, field, ids):
+        ''' 获取ids 对应的 values
+
+        :param rowids: [1, 2, 3]
+        :return: ['chenhuan', 'huan']
+        '''
+        values = [self.get_value_by_id(table, field, id) for id in ids]
+        return values
+
+    def get_urls_by_word_id(self, word_id):
+        ''' 返回满足匹配word的url列表
+
+        :param word_id: 1
+        :return: ['http://xxx', 'http://xxx']
+        '''
+        # 获取word_id对应url_ids
+        sql = "SELECT DISTINCT url_id FROM word_location WHERE word_id = %d" % word_id
+        url_ids = self.cursor.execute(sql).fetchall()
+        url_ids = [url_id[0] for url_id in url_ids]
+
+        # 获取url_ids对应的url
+        urls = self.get_values_by_ids('url_list', 'url', url_ids)
+
+        return urls
+
+    def get_urls_by_word_ids(self, word_ids):
+        ''' 返回满足匹配所有words的url列表
+
+        :param word_ids: [1, 2, 3, 4, 5]
+        :return: ['http://xxx', 'http://xxx']
+        '''
+        each_match_urls = [self.get_urls_by_word_id(word_id) for word_id in word_ids]
+
+        distinct_match_urls = each_match_urls[0]
+        # 取所有match_urls的并集
+        for match_urls in each_match_urls[1:]:
+            distinct_match_urls = set(distinct_match_urls).intersection(set(match_urls))
+
+        return list(distinct_match_urls)
+        
+    def get_id_by_value(self, table, field, value):
         ''' 通过field == value 查询rowid
 
         :return int
         '''
         sql = "SELECT rowid FROM %s WHERE %s = '%s'" % (table, field, value)
-        rowid = self.cursor.execute(sql).fetchone()[0]
-        return rowid
+        id = self.cursor.execute(sql).fetchone()[0]
+        return id
 
-    def get_rowids_by_values(self, table, field, values):
-        ''' 通过values获取value的全部id
+    def get_ids_by_values(self, table, field, values):
+        ''' 通过values获取value对应id
 
         :param values: ['chen', 'huan']
         :return: [1, 2]
         '''
-        rowids = []
-        for value in values:
-            rowids.append(self.get_rowid_by_value(table, field, value))
-
+        rowids = [self.get_id_by_value(table, field, value) for value in values]
         return rowids
 
-    def get_value_by_rowid(self, table, field, rowid):
-        ''' 通过rowid获取field的值
-        '''
-        sql = "SELECT %s FROM %s WHERE rowid = %d" % (field, table, rowid)
-        value = self.cursor.execute(sql).fetchone()[0]
-        return value
-
-    def get_values_by_rowids(self, table, field, rowids):
-        ''' 获取
-
-        :param rowids: [1, 2, 3]
-        :return: ['chenhuan', 'huan']
-        '''
-        values = []
-        for rowid in rowids:
-            values.append(self.get_value_by_rowid(table, field, rowid))
-        return values
-
-    def get_match_urls_by_word_rowid(self, word_rowid):
-        ''' 返回满足匹配word的url列表
-
-        :param word_rowid: 1
-        :return: ['http://xxx', 'http://xxx']
-        '''
-        # 获取rowid对应url_ids
-        sql = "SELECT DISTINCT url_id FROM word_location WHERE word_id = %d" % word_rowid
-        url_ids = self.cursor.execute(sql).fetchall()
-        url_ids = [url_id[0] for url_id in url_ids]
-
-        # 获取url_ids对应的url
-        urls = self.get_values_by_rowids('url_list', 'url', url_ids)
-
-        return urls
-
-    def get_match_urls_by_word_rowids(self, word_rowids):
-        ''' 返回满足匹配所有words的url列表
-
-        :param word_rowids: [1, 2, 3, 4, 5]
-        :return: ['http://xxx', 'http://xxx']
-        '''
-        each_match_urls = []
-        for word_rowid in word_rowids:
-            each_match_urls.append(self.get_match_urls_by_word_rowid(word_rowid))
-
-        distinct_match_urls = each_match_urls[0]
-        for match_urls in each_match_urls[1:]:
-            distinct_match_urls = set(distinct_match_urls).intersection(set(match_urls))
-
-        return list(distinct_match_urls)
-
     def get_match_urls(self, words):
-        ''' 查询关联所有words的urls
+        ''' 查询关联和全部words都关联的urls
 
-        :param query: string 'programming java'
+        :param words: string e.g. 'programming java'
+        :return ['http://xxx', 'http://xxxx']
         '''
         words = words.split(' ')
-        word_rowids = self.get_rowids_by_values('word_list', 'word', words)
-        match_urls = self.get_match_urls_by_word_rowids(word_rowids)
+        word_ids = self.get_ids_by_values('word_list', 'word', words)
+        match_urls = self.get_urls_by_word_ids(word_ids)
 
         return match_urls
 
@@ -112,5 +107,6 @@ if __name__ == '__main__':
 
     seacher = SearchEngine('database.sqlite')
     words = ' '.join([word.lower() for word in sys.argv[1:]])
-    print seacher.get_match_urls(words)
+    for url in seacher.get_match_urls(words):
+        print url
 

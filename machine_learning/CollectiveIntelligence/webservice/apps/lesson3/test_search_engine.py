@@ -26,20 +26,29 @@ class SearchEngineTest(unittest.TestCase):
         ''' 清理
         '''
 
-    def test_get_rowid_by_field(self):
-        ''' 测试get_rowid_by_field
+    def test_get_value_by_id(self):
+        ''' 测试get_value_by_id
         '''
-        rowid1 = self.searcher.get_rowid_by_field('test', 'word', 'chenhuan')
-        rowid2 = self.searcher.get_rowid_by_field('test', 'word', 'jianghong')
+        value = self.searcher.get_value_by_id('test', 'word', 1)
+        self.assertEqual(value, 'chenhuan', 'get_value_by_id failed')
 
-        self.assertEqual(rowid1, 1, 'get_rowid_by_field fail')
-        self.assertEqual(rowid2, 2, 'get_rowid_by_field fail')
-
-    def test_get_wordids_by_words(self):
-        ''' 测试get_wordids_by_words
+    def test_get_values_by_ids(self):
+        ''' 测试get_value_by_id
         '''
-        rowids = self.searcher.get_rowids_by_values('test', 'word', ['chenhuan', 'jianghong'])
-        self.assertEqual(rowids, [1, 2], 'get_rowids_by_field fail')
+        values = self.searcher.get_values_by_ids('test', 'word', [1, 2])
+        self.assertEqual(values, ['chenhuan', 'jianghong'], 'get_values_by_ids failed')
+
+    def test_get_id_by_value(self):
+        ''' 测试get_id_by_value
+        '''
+        id = self.searcher.get_id_by_value('test', 'word', 'chenhuan')
+        self.assertEqual(id, 1, 'get_id_by_value failed')
+
+    def test_get_ids_by_values(self):
+        ''' 测试get_values_by_ids
+        '''
+        ids = self.searcher.get_ids_by_values('test', 'word', ['chenhuan', 'jianghong'])
+        self.assertEqual(ids, [1, 2], 'get_ids_by_values failed')
 
 if __name__ == '__main__':
     unittest.main()

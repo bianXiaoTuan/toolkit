@@ -6,7 +6,7 @@ def create_tables():
     ''' sqlite hello world
     '''
     # Connect to sqlite
-    conn = sqlite3.connect('sqlite.database')
+    conn = sqlite3.connect('database.sqlite')
     c = conn.cursor()
 
     # 创建数据库表

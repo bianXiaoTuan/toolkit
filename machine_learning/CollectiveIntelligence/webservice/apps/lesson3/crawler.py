@@ -17,9 +17,6 @@ class Crawler:
         self.cursor = self.conn.cursor()
         self.ignore_words = set([])
 
-        # 初始化表数据
-        self.clear_table_data()
-
     def __del__(self):
         ''' 清理
         '''

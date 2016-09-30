@@ -5,11 +5,12 @@ import unittest
 from crawler import *
 from bs4 import BeautifulSoup
 
-class ClusterTest(unittest.TestCase):
+class CrawlerTest(unittest.TestCase):
 
     def setUp(self):
         ''' 初始化
         '''
+        # 测试爬虫
         self.crawler = Crawler('database.sqlite')
         self.table = 'test'
 
@@ -24,17 +25,28 @@ class ClusterTest(unittest.TestCase):
     def tearDown(self):
         ''' 清理
         '''
-        pass
+        # 将数据库的更新提交进去
+        self.crawler.db_commit()
 
     def test_get_entry_id(self):
         ''' 测试get_entry_id()
         '''
-        entry_id = self.crawler.get_entry_id(self.table, 'word', 'chenhuan')
+        entry_id1 = self.crawler.get_entry_id(self.table, 'word', 'chenhuan')
+        entry_id2 = self.crawler.get_entry_id(self.table, 'word', 'jianghong')
 
         sql = "SELECT rowid FROM %s WHERE word = '%s'" % (self.table, 'chenhuan')
-        result = self.cursor.execute(sql).fetchone()[0]
+        result1 = self.cursor.execute(sql).fetchone()[0]
 
-        self.assertEqual(result, entry_id, 'get_entry_id fail')
+        sql = "SELECT rowid FROM %s WHERE word = '%s'" % (self.table, 'jianghong')
+        result2 = self.cursor.execute(sql).fetchone()[0]
+
+        print 'entry_id1 : %d' % entry_id1
+        print 'result2 : %d' % result1
+        print 'entry_id1 : %d' % entry_id2
+        print 'result2 : %d' % result2
+
+        self.assertEqual(result1, entry_id1, 'get_entry_id fail')
+        self.assertEqual(result2, entry_id2, 'get_entry_id fail')
 
     def test_get_url_html(self):
         ''' 测试get_url_html

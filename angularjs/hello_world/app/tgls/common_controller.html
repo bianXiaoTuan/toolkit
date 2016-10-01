@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html ng-app="HelloAngular">
+<head>
+    <meta charset="utf-8">
+    <script src="../framework/angular/angular.min.js"></script>
+    <script src="../js/common_controller.js"></script>
+</head>
+<body>
+
+<div>
+    <div ng-controller="CommonController">
+        <div ng-controller="Controller1">
+            <p>{{greeting.text}} Angular</p>
+            <button ng-click="test1()">test1</button>
+        </div>
+        <div ng-controller="Controller2">
+            <p>{{greeting.text}} Angular</p>
+            <button ng-click="test2()">test2</button>
+        </div>
+        <button ng-click="common()">通用</button>
+    </div>
+</div>
+
+</body>
+</html>

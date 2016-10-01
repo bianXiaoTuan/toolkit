@@ -1,0 +1,32 @@
+#代码编辑
+
+* webstorm
+
+#断点调试
+
+* chrome插件Batarang
+
+#版本管理
+
+* git
+
+#代码合并混淆
+
+* nodejs
+* grunt
+
+#依赖管理
+
+* bower
+
+#单元测试
+
+* karma
+* jasmine
+* protractor
+
+#集成测试
+
+Node.js
+Bower
+KARMA

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html ng-app="HelloAngular">
+<head>
+    <meta charset="utf-8">
+    <script src="../framework/angular/angular.min.js"></script>
+    <script src="../js/scope.js"></script>
+</head>
+<body>
+
+<div ng-controller="GreetCtrl">
+    Hello {{name}}!
+</div>
+<div ng-controller="ListCtrl">
+    <ol>
+        <li ng-repeat="name in names">
+            {{name}} from {{department}}
+        </li>
+    </ol>
+</div>
+
+</body>
+</html>

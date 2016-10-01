@@ -109,4 +109,3 @@ if __name__ == '__main__':
     words = ' '.join([word.lower() for word in sys.argv[1:]])
     for url in seacher.get_match_urls(words):
         print url
-

@@ -5,6 +5,8 @@ bookStoreCtrls.controller('HelloCtrl', ['$scope',
         $scope.greeting = {
             text: 'Hello'
         };
+
+        $scope.pageClass = 'hello';
     }
 ]);
 
@@ -15,6 +17,8 @@ bookStoreCtrls.controller('BookListCtrl', ['$scope',
             {title: '<<机器学习>>', auther: '姜虹'},
             {title: '<<统计学基础>>', auther: '胖乖'}
         ];
+
+        $scope.pageClass = 'list';
     }
 ]);
 
@@ -48,7 +52,6 @@ bookStoreCtrls.controller('FormCtrl', ['$scope',
     }
 ]);
 
-
 bookStoreCtrls.controller('CSSCtrl', ['$scope',
     function($scope) {
         $scope.setGreen = function() {
@@ -57,6 +60,31 @@ bookStoreCtrls.controller('CSSCtrl', ['$scope',
 
         $scope.setRed = function() {
             $scope.color = 'red';
+        };
+    }
+]);
+
+bookStoreCtrls.controller('NGClass', ['$scope',
+    function($scope) {
+        $scope.showError = function() {
+            $scope.isError = true;
+            $scope.isWarning = false;
+            $scope.messageText = 'showError';
+        };
+
+        $scope.showWarning = function() {
+            $scope.isError = false;
+            $scope.isWarning = true;
+            $scope.messageText = 'showWarning';
+        };
+    }
+]);
+
+bookStoreCtrls.controller('NGShow', ['$scope',
+    function($scope) {
+        $scope.menuState = {show : false};
+        $scope.toggleMenu = function() {
+            $scope.menuState.show = !$scope.menuState.show;
         };
     }
 ]);

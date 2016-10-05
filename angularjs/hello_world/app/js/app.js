@@ -13,7 +13,7 @@ bookStoreApp.config(function($routeProvider){
             controller: 'HelloCtrl'
         }
     ).when('/list', {
-            templateUrl: 'tpls/bookList.html',
+            templateUrl: 'tpls/book_list.html',
             controller: 'BookListCtrl'
         }
     ).when('/form', {
@@ -23,6 +23,14 @@ bookStoreApp.config(function($routeProvider){
     ).when('/css', {
             templateUrl: 'tpls/css.html',
             controller: 'CSSCtrl'
+        }
+    ).when('/ngclass', {
+            templateUrl: 'tpls/ng_class.html',
+            controller: 'NGClass'
+        }
+    ).when('/ngshow', {
+            templateUrl: 'tpls/ng_show.html',
+            controller: 'NGShow'
         }
     ).otherwise( {
             redirectTo: '/hello'

@@ -1,0 +1,8 @@
+<link rel="stylesheet" href="../css/ng_class.css"/>
+<div ng-controller="NGClass">
+    <div ng-class="{error: isError, warning: isWarning}">
+        {{messageText}}
+    </div>
+    <button ng-click="showError()">Simulate Error</button>
+    <button ng-click="showWarning()">Simulate Warning</button>
+</div>

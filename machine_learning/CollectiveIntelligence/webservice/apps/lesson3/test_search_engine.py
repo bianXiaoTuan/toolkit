@@ -50,5 +50,11 @@ class SearchEngineTest(unittest.TestCase):
         ids = self.searcher.get_ids_by_values('test', 'word', ['chenhuan', 'jianghong'])
         self.assertEqual(ids, [1, 2], 'get_ids_by_values failed')
 
+    def test_get_score_by_words_frequency(self):
+        ''' 测试get_score_by_words_frequency
+        '''
+        frequency = self.searcher.get_score_by_words_frequency('http://chenhuan0103.com', [316, 1601])
+        print frequency
+
 if __name__ == '__main__':
     unittest.main()

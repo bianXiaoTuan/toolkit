@@ -160,6 +160,7 @@ class Crawler:
         '''
         return url[0:4] == 'http'
 
+
     def crawl(self, pages, depth=2):
         ''' 爬虫进行广度优先搜索, 并为网页建立索引
         '''

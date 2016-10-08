@@ -100,13 +100,31 @@ class SearchEngine:
 
         return match_urls
 
+    def get_scored_list(self, rows, word_ids):
+        ''' 返回评分
+        '''
+        total_scores = dict([(row[0], 0) for row in rows])
+
+        weights = []
+        for (weight, scores) in weights:
+            for url in total_scores:
+                total_scores[url] += weight * scores[url]
+
+        return total_scores
+
+    def run(self, words):
+        ''' 完成检索
+        '''
+        for url in self.get_match_urls(words):
+            print url
+
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print 'Usage %s [word] [word] ...' % sys.argv[0]
         exit(-1)
 
-    seacher = SearchEngine('database.sqlite')
     words = ' '.join([word.lower() for word in sys.argv[1:]])
-    for url in seacher.get_match_urls(words):
-        print url
+
+    seacher = SearchEngine('database.sqlite')
+    seacher.run(words)
 

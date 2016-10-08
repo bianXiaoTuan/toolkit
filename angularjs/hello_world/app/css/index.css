@@ -1,0 +1,25 @@
+.page {
+    bottom: 0;
+    padding-top: 200px;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    width: 10px;
+}
+.page h1 {
+    font-size: 60px;
+}
+
+.page a {
+    font-size: 50px;
+}
+
+.hello {
+    background: #00D00C;
+    color: #FFFFFF;
+}
+
+.list {
+    background: #E59400;
+    color: #FFFFFF;
+}

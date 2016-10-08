@@ -1,6 +1,5 @@
 var bookStoreApp = angular.module('bookStoreApp', [
     'ngRoute',
-    'ngAnimate',
     'bookStoreCtrls',
     'bookStoreServices',
     'bookStoreDirectives'
@@ -30,7 +29,7 @@ bookStoreApp.config(function($routeProvider){
         }
     ).when('/ngshow', {
             templateUrl: 'tpls/ng_show.html',
-            controller: 'NGShow'
+            controller: 'NGClass'
         }
     ).otherwise( {
             redirectTo: '/hello'

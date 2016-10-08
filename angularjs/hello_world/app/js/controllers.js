@@ -5,8 +5,6 @@ bookStoreCtrls.controller('HelloCtrl', ['$scope',
         $scope.greeting = {
             text: 'Hello'
         };
-
-        $scope.pageClass = 'hello';
     }
 ]);
 
@@ -17,8 +15,6 @@ bookStoreCtrls.controller('BookListCtrl', ['$scope',
             {title: '<<机器学习>>', auther: '姜虹'},
             {title: '<<统计学基础>>', auther: '胖乖'}
         ];
-
-        $scope.pageClass = 'list';
     }
 ]);
 

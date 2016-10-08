@@ -11,3 +11,13 @@ bookStoreDirectives.directive('bookStoreDirective_2', ['$scope',
 
     }
 ]);
+
+bookStoreDirectives.directive('hello', ['$scope',
+    function($scope) {
+		return {
+			restrict: 'E',
+			template: '<div>HelloWorld</div>',
+			replace: true
+		};
+    }
+]);

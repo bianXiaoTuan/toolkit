@@ -4,6 +4,9 @@
 import sys
 import sqlite3
 
+sys.path.append('..')
+from common.common import *
+
 class SearchEngine:
     ''' 搜索引擎
     '''
@@ -55,21 +58,7 @@ class SearchEngine:
 
         return urls
 
-    def get_urls_by_word_ids(self, word_ids):
-        ''' 返回满足匹配所有words的url列表
 
-        :param word_ids: [1, 2, 3, 4, 5]
-        :return: ['http://xxx', 'http://xxx']
-        '''
-        each_match_urls = [self.get_urls_by_word_id(word_id) for word_id in word_ids]
-
-        distinct_match_urls = each_match_urls[0]
-        # 取所有match_urls的并集
-        for match_urls in each_match_urls[1:]:
-            distinct_match_urls = set(distinct_match_urls).intersection(set(match_urls))
-
-        return list(distinct_match_urls)
-        
     def get_id_by_value(self, table, field, value):
         ''' 通过field == value 查询rowid
 
@@ -88,34 +77,92 @@ class SearchEngine:
         rowids = [self.get_id_by_value(table, field, value) for value in values]
         return rowids
 
+    def get_urls_by_word_ids(self, word_ids):
+        ''' 返回满足匹配所有words的url列表
+
+        :param word_ids: [1, 2, 3, 4, 5]
+        :return: ['http://xxx', 'http://xxx']
+        '''
+        each_match_urls = [self.get_urls_by_word_id(word_id) for word_id in word_ids]
+
+        # 取所有match_urls的并集
+        distinct_match_urls = each_match_urls[0]
+        for match_urls in each_match_urls[1:]:
+            distinct_match_urls = set(distinct_match_urls).intersection(set(match_urls))
+
+        return list(distinct_match_urls)
+
     def get_match_urls(self, words):
-        ''' 查询关联和全部words都关联的urls
+        ''' 查询和全部words都关联的urls
 
         :param words: string e.g. 'programming java'
         :return ['http://xxx', 'http://xxxx']
         '''
+        # 获取words的word_ids
         words = words.split(' ')
         word_ids = self.get_ids_by_values('word_list', 'word', words)
+
+        # 获取和word关联的全部urls
         match_urls = self.get_urls_by_word_ids(word_ids)
 
         return match_urls
 
-    def get_scored_list(self, rows, word_ids):
-        ''' 返回评分
+    def get_score_by_words_frequency(self, url, word_ids):
+        ''' 获取根据word_ids匹配出url的评分
+
+        :param url: String e.g. http://xxxx
+        :param word_ids:  [] e.g. [1, 2, 3]
+        :return: double 0.1112
         '''
-        total_scores = dict([(row[0], 0) for row in rows])
+        url_id = self.get_id_by_value('url_list', 'url', url)
 
-        weights = []
-        for (weight, scores) in weights:
-            for url in total_scores:
-                total_scores[url] += weight * scores[url]
+        where_condition = []
+        for word_id in word_ids:
+            where_condition.append('word_id=%d' % word_id)
+        where_condition = ' or '.join(where_condition)
 
-        return total_scores
+        sql = "SELECT COUNT(rowid) FROM word_location WHERE url_id = %d AND (%s)" % (url_id, where_condition)
+        frequency = self.cursor.execute(sql).fetchone()[0]
+        return frequency
+
+    def get_scored_urls_by_word_ids(self, word_ids):
+        ''' 查询和全部word_ids都关联的urls, 并按照一定的算法进行排序
+        '''
+        # 获取和word关联的全部urls
+        match_urls = self.get_urls_by_word_ids(word_ids)
+
+        return [(self.get_score_by_words_frequency(url, word_ids), url) for url in match_urls]
+
+    def normalize(self, scored_urls):
+        ''' 对scored_urls归一化处理
+
+        :param scored_urls: [(100, 'http:xxx')]
+        :return: [(0.1, 'http:xxxx')]
+        '''
+        max_value = max(scored_urls)[0]
+        min_value = min(scored_urls)[0]
+        return [(min_max_normalize(score, min_value, max_value, small_is_better=False), url)for score,url in scored_urls]
+
+    def get_scored_urls(self, words):
+        ''' 查询和全部words都关联的urls, 并按照一定的算法进行排序
+        '''
+        # 获取words的word_ids
+        words = words.split(' ')
+        word_ids = self.get_ids_by_values('word_list', 'word', words)
+
+        # 获取和word关联的全部urls 和 评分
+        scored_urls = self.get_scored_urls_by_word_ids(word_ids)
+
+        # 归一化处理
+        scored_urls = self.normalize(scored_urls)
+
+        # 倒序
+        return sorted(scored_urls, reverse=1)
 
     def run(self, words):
         ''' 完成检索
         '''
-        for url in self.get_match_urls(words):
+        for url in self.get_scored_urls(words):
             print url
 
 if __name__ == '__main__':

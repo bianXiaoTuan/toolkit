@@ -56,5 +56,11 @@ class SearchEngineTest(unittest.TestCase):
         frequency = self.searcher.get_score_by_words_frequency('http://chenhuan0103.com', [316, 1601])
         print frequency
 
+    def test_get_urls_and_word_locations_by_word_ids(self):
+        ''' 测试get_urls_and_word_locations_by_word_ids
+        '''
+        # maven hadoop java
+        self.searcher.get_urls_and_word_locations_by_word_ids([4510, 1592])
+
 if __name__ == '__main__':
     unittest.main()

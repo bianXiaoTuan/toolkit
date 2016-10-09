@@ -94,9 +94,14 @@ class Crawler:
     def add_index(self, url, words):
         ''' 为网页建立索引
         将URL包含的每个word 和 URL关联起来
+        word_location中location为word在url中出现位置
         '''
         if self.is_indexed(url):
             return
+
+        # 只索引articleFront页面
+        # if url.find('articleFront/view') == -1:
+        #     return
 
         print 'Indexing ' + url
 
@@ -172,6 +177,7 @@ class Crawler:
                 if page.find('chenhuan') == -1:
                     continue
 
+                # 获取HTML内容
                 html = self.get_url_html(page)
                 if html == None:
                     continue
@@ -184,6 +190,7 @@ class Crawler:
                 # 为当前页面添加索引
                 self.add_index(page, words)
 
+                # 递归处理子链接
                 links = soup('a')
                 for link in links:
                     if 'href' in dict(link.attrs):

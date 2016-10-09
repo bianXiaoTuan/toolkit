@@ -107,6 +107,62 @@ class SearchEngine:
 
         return match_urls
 
+    def get_urls_and_word_locations_by_word_ids(self, word_ids):
+        ''' 返回满足匹配所有words的url列表, 通过SQL方式直接获取
+        SELECT w0.url_id,w0.location,w1.location
+        FROM word_location w0, word_location w1
+        WHERE w0.url_id = w1.url_id AND w0.word_id = 10 AND w1.word_id = 17 ;
+
+        :param word_ids: [1, 2]
+        :return: [(url_id, word1_location, word2_location)]
+        '''
+        # w0.url_id,w0.location,w1.location
+        s1 = ','.join(['w0.url_id'] + ['w%d.location' % i for i in range(len(word_ids))])
+
+        # word_location w0, word_location w1
+        s2 = ','.join(['word_location w%d' % i for i in range(len(word_ids))])
+
+        # w0.url_id = w1.url_id AND w1.url_id = w2.url_id
+        s3 = ' AND '.join(['w%d.url_id = w%d.url_id' % (i, i+1) for i in range(len(word_ids) - 1)])
+
+        # w0.word_id = 10 AND w1.word_id = 17
+        s4 = ' AND '.join(['w%d.word_id = %d' % (i, word_ids[i]) for i in range(len(word_ids))])
+
+        if len(word_ids) == 1:
+            sql = "SELECT %s FROM %s WHERE %s" % (s1, s2, s4)
+        else:
+            sql = "SELECT %s FROM %s WHERE %s AND %s" % (s1, s2, s3, s4)
+
+        return self.cursor.execute(sql).fetchall()
+
+    def get_match_urls_and_word_locations(self, words):
+        ''' 查询和全部words都关联的urls, 并返回words在url中出现位置
+
+        :param words: string e.g. 'programming java'
+        :return ['http://xxx', 'http://xxxx']
+        '''
+        # 获取words的word_ids
+        words = words.split(' ')
+        word_ids = self.get_ids_by_values('word_list', 'word', words)
+
+        # 获取和word关联的全部urls
+        match_urls = self.get_urls_and_word_locations_by_word_ids(word_ids)
+
+        return match_urls
+
+    def normalize(self, scored_urls):
+        ''' 对scored_urls归一化处理
+
+        :param scored_urls: [(100, 'http:xxx')]
+        :return: [(0.1, 'http:xxxx')]
+        '''
+        if len(scored_urls) == 0:
+            raise Exception("scored_urls is empty")
+
+        max_value = max(scored_urls)[0]
+        min_value = min(scored_urls)[0]
+        return [(min_max_normalize(score, min_value, max_value, small_is_better=False), url)for score,url in scored_urls]
+
     def get_score_by_words_frequency(self, url, word_ids):
         ''' 获取根据word_ids匹配出url的评分
 
@@ -133,16 +189,6 @@ class SearchEngine:
 
         return [(self.get_score_by_words_frequency(url, word_ids), url) for url in match_urls]
 
-    def normalize(self, scored_urls):
-        ''' 对scored_urls归一化处理
-
-        :param scored_urls: [(100, 'http:xxx')]
-        :return: [(0.1, 'http:xxxx')]
-        '''
-        max_value = max(scored_urls)[0]
-        min_value = min(scored_urls)[0]
-        return [(min_max_normalize(score, min_value, max_value, small_is_better=False), url)for score,url in scored_urls]
-
     def get_scored_urls(self, words):
         ''' 查询和全部words都关联的urls, 并按照一定的算法进行排序
         '''
@@ -153,11 +199,39 @@ class SearchEngine:
         # 获取和word关联的全部urls 和 评分
         scored_urls = self.get_scored_urls_by_word_ids(word_ids)
 
+        if len(scored_urls) == 0:
+            return []
+
         # 归一化处理
         scored_urls = self.normalize(scored_urls)
 
         # 倒序
         return sorted(scored_urls, reverse=1)
+
+    def get_scored_urls_new(self, words):
+        ''' 查询和全部words都关联的urls, 并按照一定的算法进行排序
+        '''
+        # 获取url和word在url中出现位置
+        match_urls_and_word_locations = self.get_match_urls_and_word_locations(words)
+
+        total_scores = dict([(row[0], 0) for row in match_urls_and_word_locations])
+
+        # 评价函数
+        weights = [(1.0, self.frequency_score(match_urls_and_word_locations))]
+
+        for (weight, scores) in weights:
+            for url in total_scores:
+                total_scores[url] += weight * scores[url]
+
+        return total_scores
+
+    def frequency_score(self, rows):
+        counts = dict([(row[0], 0) for row in rows])
+
+        for row in rows:
+            counts[row[0]] += 1
+
+        return min_max_normalize(counts)
 
     def run(self, words):
         ''' 完成检索
@@ -173,4 +247,4 @@ if __name__ == '__main__':
     words = ' '.join([word.lower() for word in sys.argv[1:]])
 
     seacher = SearchEngine('database.sqlite')
-    seacher.run(words)
+    print seacher.get_scored_urls_new(words)

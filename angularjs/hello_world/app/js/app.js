@@ -31,6 +31,9 @@ bookStoreApp.config(function($routeProvider){
             templateUrl: 'tpls/ng_show.html',
             controller: 'NGClass'
         }
+    ).when('/directive_hello', {
+            templateUrl: 'tpls/directive_hello.html',
+        }
     ).otherwise( {
             redirectTo: '/hello'
         }

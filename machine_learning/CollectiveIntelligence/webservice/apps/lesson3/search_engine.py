@@ -213,6 +213,7 @@ class SearchEngine:
         '''
         # 获取url和word在url中出现位置
         match_urls_and_word_locations = self.get_match_urls_and_word_locations(words)
+        print match_urls_and_word_locations
 
         total_scores = dict([(row[0], 0) for row in match_urls_and_word_locations])
 
@@ -225,13 +226,35 @@ class SearchEngine:
 
         return total_scores
 
+    def normalize_scores(self, scores, small_is_better=True):
+        vsmall = 0.00001
+
+        if small_is_better:
+            min_score = min(scores.values())
+            return dict([(u, float(min_score)/max(vsmall, l)) for (u, l) in scores.items()])
+        else:
+            max_score = max(scores.values())
+            if max_score ==0 :
+                max_score = vsmall
+            return dict([(u, float(c) / max_score) for (u, c) in scores.items()])
+
     def frequency_score(self, rows):
         counts = dict([(row[0], 0) for row in rows])
 
         for row in rows:
             counts[row[0]] += 1
 
-        return min_max_normalize(counts)
+        return self.normalize_scores(counts)
+
+    def query(self, words):
+        ''' 完成检索
+        '''
+        scores = self.get_scored_urls_new(words)
+
+        ranked_scores = sorted([(score, url) for (url, score) in scores.items()], reverse=1)
+
+        for (score, urlid) in ranked_scores[0:10]:
+            print '%f\t%s' % (score, self.get_value_by_id('url_list', 'url', urlid))
 
     def run(self, words):
         ''' 完成检索
@@ -247,4 +270,4 @@ if __name__ == '__main__':
     words = ' '.join([word.lower() for word in sys.argv[1:]])
 
     seacher = SearchEngine('database.sqlite')
-    print seacher.get_scored_urls_new(words)
+    seacher.query(words)

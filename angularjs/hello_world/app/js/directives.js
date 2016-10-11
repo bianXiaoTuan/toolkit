@@ -1,25 +1,18 @@
 var bookStoreDirectives = angular.module('bookStoreDirectives', []);
 
+/**
+ * restrict
+ * E: 元素
+ * A: 属性
+ * C: 样式类
+ * M: 注释
+ */
 bookStoreDirectives.directive('hello',
     function() {
 		return {
-			restrict: 'E',
+			restrict: 'AEMC',
 			template: '<p>Hello World</p>',
 			replace: true
 		};
     }
 );
-
-bookStoreDirectives.directive('bookStoreDirective_1', ['$scope',
-    function($scope) {
-
-    }
-]);
-
-bookStoreDirectives.directive('bookStoreDirective_2', ['$scope',
-    function($scope) {
-
-    }
-]);
-
-

@@ -99,10 +99,6 @@ class Crawler:
         if self.is_indexed(url):
             return
 
-        # 只索引articleFront页面
-        # if url.find('articleFront/view') == -1:
-        #     return
-
         print 'Indexing ' + url
 
         # 获取url_id
@@ -165,7 +161,6 @@ class Crawler:
         '''
         return url[0:4] == 'http'
 
-
     def crawl(self, pages, depth=2):
         ''' 爬虫进行广度优先搜索, 并为网页建立索引
         '''
@@ -173,10 +168,6 @@ class Crawler:
             new_pages = set()
 
             for page in pages:
-                # 过滤掉非chenhuan0103.com网站
-                if page.find('chenhuan') == -1:
-                    continue
-
                 # 获取HTML内容
                 html = self.get_url_html(page)
                 if html == None:
@@ -212,5 +203,4 @@ if __name__ == '__main__':
     pages = ['http://chenhuan0103.com']
 
     crawler = Crawler('database.sqlite')
-    crawler.crawl(pages)
-
+    crawler.crawl(pages, depth=2)

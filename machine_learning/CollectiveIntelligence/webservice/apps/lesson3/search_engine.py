@@ -58,7 +58,6 @@ class SearchEngine:
 
         return urls
 
-
     def get_id_by_value(self, table, field, value):
         ''' 通过field == value 查询rowid
 
@@ -107,62 +106,6 @@ class SearchEngine:
 
         return match_urls
 
-    def get_urls_and_word_locations_by_word_ids(self, word_ids):
-        ''' 返回满足匹配所有words的url列表, 通过SQL方式直接获取
-        SELECT w0.url_id,w0.location,w1.location
-        FROM word_location w0, word_location w1
-        WHERE w0.url_id = w1.url_id AND w0.word_id = 10 AND w1.word_id = 17 ;
-
-        :param word_ids: [1, 2]
-        :return: [(url_id, word1_location, word2_location)]
-        '''
-        # w0.url_id,w0.location,w1.location
-        s1 = ','.join(['w0.url_id'] + ['w%d.location' % i for i in range(len(word_ids))])
-
-        # word_location w0, word_location w1
-        s2 = ','.join(['word_location w%d' % i for i in range(len(word_ids))])
-
-        # w0.url_id = w1.url_id AND w1.url_id = w2.url_id
-        s3 = ' AND '.join(['w%d.url_id = w%d.url_id' % (i, i+1) for i in range(len(word_ids) - 1)])
-
-        # w0.word_id = 10 AND w1.word_id = 17
-        s4 = ' AND '.join(['w%d.word_id = %d' % (i, word_ids[i]) for i in range(len(word_ids))])
-
-        if len(word_ids) == 1:
-            sql = "SELECT %s FROM %s WHERE %s" % (s1, s2, s4)
-        else:
-            sql = "SELECT %s FROM %s WHERE %s AND %s" % (s1, s2, s3, s4)
-
-        return self.cursor.execute(sql).fetchall()
-
-    def get_match_urls_and_word_locations(self, words):
-        ''' 查询和全部words都关联的urls, 并返回words在url中出现位置
-
-        :param words: string e.g. 'programming java'
-        :return ['http://xxx', 'http://xxxx']
-        '''
-        # 获取words的word_ids
-        words = words.split(' ')
-        word_ids = self.get_ids_by_values('word_list', 'word', words)
-
-        # 获取和word关联的全部urls
-        match_urls = self.get_urls_and_word_locations_by_word_ids(word_ids)
-
-        return match_urls
-
-    def normalize(self, scored_urls):
-        ''' 对scored_urls归一化处理
-
-        :param scored_urls: [(100, 'http:xxx')]
-        :return: [(0.1, 'http:xxxx')]
-        '''
-        if len(scored_urls) == 0:
-            raise Exception("scored_urls is empty")
-
-        max_value = max(scored_urls)[0]
-        min_value = min(scored_urls)[0]
-        return [(min_max_normalize(score, min_value, max_value, small_is_better=False), url)for score,url in scored_urls]
-
     def get_score_by_words_frequency(self, url, word_ids):
         ''' 获取根据word_ids匹配出url的评分
 
@@ -189,85 +132,140 @@ class SearchEngine:
 
         return [(self.get_score_by_words_frequency(url, word_ids), url) for url in match_urls]
 
-    def get_scored_urls(self, words):
-        ''' 查询和全部words都关联的urls, 并按照一定的算法进行排序
+    def normalize_scores(self, url_counts, small_is_better=True):
+        ''' 归一化处理
+
+        value - min / max - min
+
+        :param url_counts: { url : word出现次数 }
+        :param small_is_better: True = 数字越小, 表示评分越高
+        :return:
         '''
-        # 获取words的word_ids
-        words = words.split(' ')
-        word_ids = self.get_ids_by_values('word_list', 'word', words)
+        min_v = min(url_counts.values())
+        max_v = max(url_counts.values())
 
-        # 获取和word关联的全部urls 和 评分
-        scored_urls = self.get_scored_urls_by_word_ids(word_ids)
-
-        if len(scored_urls) == 0:
-            return []
-
-        # 归一化处理
-        scored_urls = self.normalize(scored_urls)
-
-        # 倒序
-        return sorted(scored_urls, reverse=1)
-
-    def get_scored_urls_new(self, words):
-        ''' 查询和全部words都关联的urls, 并按照一定的算法进行排序
-        '''
-        # 获取url和word在url中出现位置
-        match_urls_and_word_locations = self.get_match_urls_and_word_locations(words)
-        print match_urls_and_word_locations
-
-        total_scores = dict([(row[0], 0) for row in match_urls_and_word_locations])
-
-        # 评价函数
-        weights = [(1.0, self.frequency_score(match_urls_and_word_locations))]
-
-        for (weight, scores) in weights:
-            for url in total_scores:
-                total_scores[url] += weight * scores[url]
-
-        return total_scores
-
-    def normalize_scores(self, scores, small_is_better=True):
-        vsmall = 0.00001
+        # 如果所有count都一样
+        if min_v == max_v:
+            if small_is_better:
+                return dict([(url, 0) for url,count in url_counts.items()])
+            else:
+                return dict([(url, 1) for url,count in url_counts.items()])
 
         if small_is_better:
-            min_score = min(scores.values())
-            return dict([(u, float(min_score)/max(vsmall, l)) for (u, l) in scores.items()])
+            return dict([(url, 1 - float(count - min_v) / float(max_v - min_v)) for url,count in url_counts.items()])
         else:
-            max_score = max(scores.values())
-            if max_score ==0 :
-                max_score = vsmall
-            return dict([(u, float(c) / max_score) for (u, c) in scores.items()])
+            return dict([(url, float(count - min_v) / float(max_v - min_v)) for url,count in url_counts.items()])
 
-    def frequency_score(self, rows):
-        counts = dict([(row[0], 0) for row in rows])
+    def get_match_urls_and_word_locations(self, words):
+        ''' 查询和全部words都关联的urls, 并返回words在url中出现位置
 
-        for row in rows:
-            counts[row[0]] += 1
+        :param words: [] e.g. ['kafka', 'java', 'storm']
+        :return: [(url_id, word1_location, word2_location)]
+        '''
+        # 获取words的word_ids
+        word_ids = self.get_ids_by_values('word_list', 'word', words)
 
-        return self.normalize_scores(counts)
+        '''
+        构建SQL:
+        SELECT w0.url_id,w0.location,w1.location
+        FROM word_location w0, word_location w1
+        WHERE w0.url_id = w1.url_id AND w0.word_id = 10 AND w1.word_id = 17 ;
+        '''
+        # w0.url_id,w0.location,w1.location
+        s1 = ','.join(['w0.url_id'] + ['w%d.location' % i for i in range(len(word_ids))])
+
+        # word_location w0, word_location w1
+        s2 = ','.join(['word_location w%d' % i for i in range(len(word_ids))])
+
+        # w0.url_id = w1.url_id AND w1.url_id = w2.url_id
+        s3 = ' AND '.join(['w%d.url_id = w%d.url_id' % (i, i+1) for i in range(len(word_ids) - 1)])
+
+        # w0.word_id = 10 AND w1.word_id = 17
+        s4 = ' AND '.join(['w%d.word_id = %d' % (i, word_ids[i]) for i in range(len(word_ids))])
+
+        if len(word_ids) == 1:
+            sql = "SELECT %s FROM %s WHERE %s" % (s1, s2, s4)
+        else:
+            sql = "SELECT %s FROM %s WHERE %s AND %s" % (s1, s2, s3, s4)
+
+        return self.cursor.execute(sql).fetchall()
+
+    def location_score(self, urls_and_word_locations):
+        ''' 按照words出现的位置进行评分
+
+        :param urls_and_word_locations: [(url_id, word1_location, word2_location)]
+        :return: {url: 评分}
+        '''
+        MAX = 1000000
+        url_location_sum = dict([(row[0], MAX) for row in urls_and_word_locations])
+
+        # location之和为所有word_location中最小的
+        for row in urls_and_word_locations:
+            url = row[0]
+
+            location_sum = sum(row[1:])
+            if location_sum < url_location_sum[url]:
+                url_location_sum[url] = location_sum
+
+        return self.normalize_scores(url_location_sum, small_is_better=False)
+
+    def frequency_score(self, urls_and_word_locations):
+        ''' 按照words出现的频率进行评分
+
+        :param urls_and_word_locations: [(url_id, word1_location, word2_location)]
+        :return: { url: 评分}
+        '''
+        url_counts = dict([(row[0], 0) for row in urls_and_word_locations])
+
+        # url = row[0], 每出现一次word匹配则记一次数
+        for row in urls_and_word_locations:
+            url_counts[row[0]] += 1
+
+        return self.normalize_scores(url_counts, small_is_better=False)
+
+    def get_scored_urls(self, words):
+        ''' 查询和全部words都关联的urls, 并按照算法进行排序
+
+        :param words: String e.g. 'kafka java storm'
+        :return:
+        '''
+        # 获取和words匹配的urls, 及words在url中位置
+        urls_and_word_locations = self.get_match_urls_and_word_locations(words)
+
+        # {'url':'评分'}
+        scored_urls = dict([(url[0], 0) for url in urls_and_word_locations])
+
+        # 评价函数
+        # weights = [(1.0, self.frequency_score(urls_and_word_locations))]
+        weights = [(1.0, self.location_score(urls_and_word_locations))]
+
+        # 评价函数按照加权打分
+        for (weight, scores) in weights:
+            for url in scored_urls:
+                scored_urls[url] += weight * scores[url]
+
+        return scored_urls
 
     def query(self, words):
         ''' 完成检索
+
+        :param words: [] e.g. ['kafka', 'java', 'storm']
         '''
-        scores = self.get_scored_urls_new(words)
+        scored_urls = self.get_scored_urls(words)
 
-        ranked_scores = sorted([(score, url) for (url, score) in scores.items()], reverse=1)
+        # 调整url 和 score位置并排序
+        ranked_scored_urls = sorted([(score, url) for (url, score) in scored_urls.items()], reverse=1)
 
-        for (score, urlid) in ranked_scores[0:10]:
-            print '%f\t%s' % (score, self.get_value_by_id('url_list', 'url', urlid))
-
-    def run(self, words):
-        ''' 完成检索
-        '''
-        for url in self.get_scored_urls(words):
-            print url
+        # 打印结果
+        for (score, url_id) in ranked_scored_urls:
+            print '%f\t%s' % (score, self.get_value_by_id('url_list', 'url', url_id))
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print 'Usage %s [word] [word] ...' % sys.argv[0]
         exit(-1)
 
-    words = ' '.join([word.lower() for word in sys.argv[1:]])
+    words = [word.lower() for word in sys.argv[1:]]
 
     seacher = SearchEngine('database.sqlite')
     seacher.query(words)

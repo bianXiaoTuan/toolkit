@@ -190,8 +190,31 @@ class SearchEngine:
 
         return self.cursor.execute(sql).fetchall()
 
+    def distance_score(self, urls_and_word_locations):
+        ''' 按照words之间距离进行评分
+
+        :param urls_and_word_locations: [(url_id, word1_location, word2_location)]
+        :return: {url: 评分}
+        '''
+        if len(urls_and_word_locations[0]) <= 2:
+            return dict([(row[0], 1.0) for row in urls_and_word_locations])
+
+        MAX = 1000000
+        url_min_distance = dict([(row[0], MAX) for row in urls_and_word_locations])
+
+        for row in urls_and_word_locations:
+            url = row[0]
+            distance = sum([abs(row[i] - row[i-1]) for i in range(2, len(row))])
+
+            if distance < url_min_distance[url]:
+                url_min_distance[url] = distance
+
+        print url_min_distance
+
+        return self.normalize_scores(url_min_distance, small_is_better=True)
+
     def location_score(self, urls_and_word_locations):
-        ''' 按照words出现的位置进行评分
+        ''' 按照words在HTML出现的位置进行评分
 
         :param urls_and_word_locations: [(url_id, word1_location, word2_location)]
         :return: {url: 评分}
@@ -235,9 +258,16 @@ class SearchEngine:
         # {'url':'评分'}
         scored_urls = dict([(url[0], 0) for url in urls_and_word_locations])
 
-        # 评价函数
+        ''' 评价函数 '''
+
+        # 根据词频推荐
         # weights = [(1.0, self.frequency_score(urls_and_word_locations))]
-        weights = [(1.0, self.location_score(urls_and_word_locations))]
+
+        # 根据在文档中位置推荐
+        # weights = [(1.0, self.location_score(urls_and_word_locations))]
+
+        # 根据单词距离推荐
+        weights = [(1.0, self.distance_score(urls_and_word_locations))]
 
         # 评价函数按照加权打分
         for (weight, scores) in weights:

@@ -52,8 +52,9 @@ class Crawler:
 
     def get_text(self, soup):
         ''' 从HTML网页中提取不带标签文字
-
         e.g. <a hrep='http:xxxx'>chenhuan</a>获取chenhuan
+
+        :return: String e.g. chenhuan
         '''
         # 如果标签没有嵌套关系, 直接返回HTML值
         text = soup.string
@@ -137,8 +138,13 @@ class Crawler:
 
     def add_link_ref(self, url_from, url_to, link_text):
         ''' 添加一个关联两个网页链接
+
+        :param url_from: String
+        :param url_to: String
+        :param link_text: String
+        :return:
         '''
-        pass
+
 
     def get_url_html(self, page):
         ''' 获取URL的HTML
@@ -164,6 +170,7 @@ class Crawler:
     def crawl(self, pages, depth=2):
         ''' 爬虫进行广度优先搜索, 并为网页建立索引
         '''
+        link_ref = {}
         for i in range(depth):
             new_pages = set()
 
@@ -192,7 +199,7 @@ class Crawler:
                         if self.is_url(url) and not self.is_indexed(url):
                             new_pages.add(url)
 
-                        # 关联父子链接
+                        # 关联page->url链接
                         self.add_link_ref(page, url, self.get_text(link))
 
                 # 统一提交变更

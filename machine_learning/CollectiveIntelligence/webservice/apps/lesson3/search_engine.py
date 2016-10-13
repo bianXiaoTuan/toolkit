@@ -192,6 +192,17 @@ class SearchEngine:
 
         return self.cursor.execute(sql).fetchall()
 
+    def get_in_bound_counts(self, url_id):
+        ''' 返回to_id = url_id的个数
+
+        :param url_id: int
+        :return: int
+        '''
+        sql = "SELECT count(1) FROM link WHERE to_id = %d" % url_id
+        count = self.cursor.execute(sql).fetchone()[0]
+
+        return count
+
     def distance_score(self, urls_and_word_locations):
         ''' 按照words之间距离进行评分
 
@@ -248,6 +259,22 @@ class SearchEngine:
 
         return self.normalize_scores(url_counts, small_is_better=False)
 
+    def in_bound_link_score(self, urls_and_word_locations):
+        ''' 按照对url引用次数进行评分
+
+        :param urls_and_word_locations: [(url_id, word1_location, word2_location)]
+        :return: { url: 评分}
+        '''
+        # 去除重复url
+        urls = set([row[0] for row in urls_and_word_locations])
+        url_ref_counts = dict([(url, 0) for url in urls])
+
+        for url_id in urls:
+            count = self.get_in_bound_counts(url_id)
+            url_ref_counts[url_id] = count
+
+        return self.normalize_scores(url_ref_counts, small_is_better=False)
+
     def get_scored_urls(self, words):
         ''' 查询和全部words都关联的urls, 并按照算法进行排序
 
@@ -269,7 +296,10 @@ class SearchEngine:
         # weights = [(1.0, self.location_score(urls_and_word_locations))]
 
         # 根据单词距离推荐
-        weights = [(1.0, self.distance_score(urls_and_word_locations))]
+        # weights = [(1.0, self.distance_score(urls_and_word_locations))]
+
+        # 根据指向url的链接数推荐
+        weights = [(1.0, self.in_bound_link_score(urls_and_word_locations))]
 
         # 评价函数按照加权打分
         for (weight, scores) in weights:
@@ -301,6 +331,3 @@ if __name__ == '__main__':
 
     seacher = SearchEngine('database.sqlite')
     seacher.query(words)
-
-
-

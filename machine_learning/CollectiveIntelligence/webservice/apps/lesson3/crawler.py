@@ -81,6 +81,8 @@ class Crawler:
     def get_entry_id(self, table, field, value, create_new=True):
         ''' 用户entry id, 如果entry_id不存在, 则将其加入数据库
         '''
+        value = value.replace("'", "")
+
         sql = "SELECT rowid FROM %s WHERE %s = '%s'" % (table, field, value)
         result = self.cursor.execute(sql)
         result = result.fetchone()
@@ -122,7 +124,7 @@ class Crawler:
             self.cursor.execute(sql)
 
     def is_indexed(self, url):
-        ''' 如果url已经建立过索引, 则返回True
+        ''' 如果url已经建立过索引(url_list 和 word_location中都存在), 则返回True
         '''
         sql = "SELECT rowid FROM url_list WHERE url = '%s'"
         result = self.cursor.execute(sql).fetchone()
@@ -136,6 +138,40 @@ class Crawler:
 
         return False
 
+    def add_link_words(self, link_id, link_text):
+        ''' 关联link_id 和 link_words
+
+        :param link_id: int
+        :param link_text: string
+        '''
+        word_id = self.get_entry_id('word_list', 'word', link_text)
+
+        sql = "SELECT rowid FROM link_words WHERE word_id = %d AND link_id = %d" % (word_id, link_id)
+        result = self.cursor.execute(sql)
+        result = result.fetchone()
+
+        if result == None:
+            sql = "INSERT INTO link_words (word_id, link_id) values (%d, %d)" % (word_id, link_id)
+            self.cursor.execute(sql)
+
+    def add_link(self, url_from_id, url_to_id):
+        ''' 关联url_from 至 url_to
+
+        :param url_from_id: int
+        :param url_to_id: int
+        :return: link_id
+        '''
+        sql = "SELECT rowid FROM link WHERE from_id = %d AND to_id = %d" % (url_from_id, url_to_id)
+        result = self.cursor.execute(sql)
+        result = result.fetchone()
+
+        if result == None:
+            sql = "INSERT INTO link (from_id, to_id) values (%d, %d)" % (url_from_id, url_to_id)
+            result = self.cursor.execute(sql)
+            return result.lastrowid
+        else:
+            return result[0]
+
     def add_link_ref(self, url_from, url_to, link_text):
         ''' 添加一个关联两个网页链接
 
@@ -144,7 +180,14 @@ class Crawler:
         :param link_text: String
         :return:
         '''
+        url_from_id = self.get_entry_id('url_list', 'url', url_from)
+        url_to_id = self.get_entry_id('url_list', 'url', url_to)
 
+        # 插入link
+        link_id = self.add_link(url_from_id, url_to_id)
+
+        # 插入link_words
+        self.add_link_words(link_id, link_text)
 
     def get_url_html(self, page):
         ''' 获取URL的HTML
@@ -170,16 +213,17 @@ class Crawler:
     def crawl(self, pages, depth=2):
         ''' 爬虫进行广度优先搜索, 并为网页建立索引
         '''
-        link_ref = {}
+        # link_ref = {}
         for i in range(depth):
             new_pages = set()
 
             for page in pages:
-                # 获取HTML内容
-                html = self.get_url_html(page)
-                if html == None:
+                if page.find('chenhuan0103') == -1:
                     continue
 
+                # 获取HTML内容
+                html = self.get_url_html(page)
+                if html == None: continue
                 soup = BeautifulSoup(html, 'html.parser')
 
                 # 获取页面包含words
@@ -187,6 +231,9 @@ class Crawler:
 
                 # 为当前页面添加索引
                 self.add_index(page, words)
+
+                # if page not in link_ref:
+                #     link_ref[page] = []
 
                 # 递归处理子链接
                 links = soup('a')
@@ -198,6 +245,7 @@ class Crawler:
                         # 检查是否为合格URL, 且未被索引
                         if self.is_url(url) and not self.is_indexed(url):
                             new_pages.add(url)
+                            # link_ref[page].append((url, self.get_text(link)))
 
                         # 关联page->url链接
                         self.add_link_ref(page, url, self.get_text(link))
@@ -205,6 +253,8 @@ class Crawler:
                 # 统一提交变更
                 self.db_commit()
             pages = new_pages
+
+        # print link_ref
 
 if __name__ == '__main__':
     pages = ['http://chenhuan0103.com']

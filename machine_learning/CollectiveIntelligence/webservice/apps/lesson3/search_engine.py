@@ -6,6 +6,7 @@ import sqlite3
 
 sys.path.append('..')
 from common.common import *
+from crawler import *
 
 class SearchEngine:
     ''' 搜索引擎
@@ -13,6 +14,7 @@ class SearchEngine:
     def __init__(self, db_name):
         ''' 初始化
         '''
+        self.crawler = Crawler
         self.conn = sqlite3.connect(db_name)
         self.cursor = self.conn.cursor()
 
@@ -299,3 +301,6 @@ if __name__ == '__main__':
 
     seacher = SearchEngine('database.sqlite')
     seacher.query(words)
+
+
+

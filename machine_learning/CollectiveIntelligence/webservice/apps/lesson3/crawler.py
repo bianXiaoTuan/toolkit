@@ -78,6 +78,13 @@ class Crawler:
         words = self.separate_words(text)
         return words
 
+    def get_value_by_id(self, table, field, id):
+        ''' 通过rowid获取field的值
+        '''
+        sql = "SELECT %s FROM %s WHERE rowid = %d" % (field, table, id)
+        value = self.cursor.execute(sql).fetchone()[0]
+        return value
+
     def get_entry_id(self, table, field, value, create_new=True):
         ''' 用户entry id, 如果entry_id不存在, 则将其加入数据库
         '''
@@ -210,10 +217,63 @@ class Crawler:
         '''
         return url[0:4] == 'http'
 
+    def get_id_by_value(self, table, field, value):
+        ''' 通过field == value 查询rowid
+
+        :return int
+        '''
+        sql = "SELECT rowid FROM %s WHERE %s = '%s'" % (table, field, value)
+        id = self.cursor.execute(sql).fetchone()[0]
+        return id
+
+    def get_to_url_ids_by_soup(self, url_id):
+        ''' 通过url->beautifulsoup获取子链接的url_ids
+        '''
+        # url_id 转化成 url
+        page = self.get_value_by_id('url_list', 'url', url_id)
+
+        # 获取url的HTML内容
+        html = self.get_url_html(page)
+        if html == None: return
+        soup = BeautifulSoup(html, 'html.parser')
+
+        # 递归处理子链接
+        links = soup('a')
+        son_url_ids = []
+        for link in links:
+            if 'href' in dict(link.attrs):
+                url = urljoin(page, link['href'])
+                url = url.split('#')[0]
+
+                son_url_ids.append(self.get_id_by_value('url_list', 'url', url))
+
+        return list(set(son_url_ids))
+
+    def get_to_url_ids_by_sql(self, url_id):
+        ''' 通过SQL中获取from_id对应的to_id
+        '''
+        sql = "SELECT to_id FROM link WHERE from_id = %d" % (url_id)
+        url_ids = self.cursor.execute(sql).fetchall()
+
+        return list(set([url_id[0] for url_id in url_ids]))
+
+    def check_link_ref(self, url_id):
+        ''' 返回url_id对应的url_to_id
+
+        :param url_id: int e.g. 37
+        :return: [1, 2, 3, 4]
+        '''
+        to_url_ids_1 = self.get_to_url_ids_by_soup(url_id)
+        to_url_ids_2 = self.get_to_url_ids_by_sql(url_id)
+
+        if to_url_ids_1 == to_url_ids_2:
+            print 'Link Success'
+        else:
+            print 'Link Fail'
+
     def crawl(self, pages, depth=2):
         ''' 爬虫进行广度优先搜索, 并为网页建立索引
         '''
-        # link_ref = {}
         for i in range(depth):
             new_pages = set()
 
@@ -232,9 +292,6 @@ class Crawler:
                 # 为当前页面添加索引
                 self.add_index(page, words)
 
-                # if page not in link_ref:
-                #     link_ref[page] = []
-
                 # 递归处理子链接
                 links = soup('a')
                 for link in links:
@@ -245,7 +302,6 @@ class Crawler:
                         # 检查是否为合格URL, 且未被索引
                         if self.is_url(url) and not self.is_indexed(url):
                             new_pages.add(url)
-                            # link_ref[page].append((url, self.get_text(link)))
 
                         # 关联page->url链接
                         self.add_link_ref(page, url, self.get_text(link))
@@ -254,10 +310,10 @@ class Crawler:
                 self.db_commit()
             pages = new_pages
 
-        # print link_ref
 
 if __name__ == '__main__':
     pages = ['http://chenhuan0103.com']
 
     crawler = Crawler('database.sqlite')
     crawler.crawl(pages, depth=2)
+    crawler.check_link_ref(37)

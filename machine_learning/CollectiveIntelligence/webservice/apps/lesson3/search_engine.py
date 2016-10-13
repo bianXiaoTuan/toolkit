@@ -314,7 +314,6 @@ class SearchEngine:
         :param words: [] e.g. ['kafka', 'java', 'storm']
         '''
         scored_urls = self.get_scored_urls(words)
-
         # 调整url 和 score位置并排序
         ranked_scored_urls = sorted([(score, url) for (url, score) in scored_urls.items()], reverse=1)
 

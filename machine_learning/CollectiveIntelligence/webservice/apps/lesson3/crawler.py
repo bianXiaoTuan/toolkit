@@ -271,6 +271,32 @@ class Crawler:
         else:
             print 'Link Fail'
 
+    def init_page_rank_table(self):
+        ''' 初始化page_rank表
+        '''
+        self.conn.execute('DROP TABLE IF EXISTS page_rank')
+        self.conn.execute('CREATE TABLE page_rank(urlid primay key, score)')
+        self.conn.execute("INSERT INTO page_rank SELECT rowid, 1.0 FROM url_list")
+        self.db_commit()
+
+    def init_page_rank_score(self):
+        ''' 初始化page_rank中score值
+        '''
+        self.db_commit()
+
+    def calculate_page_rank(self, iterations=20):
+        ''' 计算page_rank
+
+        :param iterations: 迭代轮次
+        '''
+        # 创建page_rank表, 并将score初始化为1
+        self.init_page_rank_table()
+
+        for i in range(iterations):
+            print "Iteration %d" % (i)
+
+
+
     def crawl(self, pages, depth=2):
         ''' 爬虫进行广度优先搜索, 并为网页建立索引
         '''

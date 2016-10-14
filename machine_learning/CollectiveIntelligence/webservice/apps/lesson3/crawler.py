@@ -284,6 +284,14 @@ class Crawler:
         '''
         self.db_commit()
 
+    def get_all_url_ids(self):
+        ''' 获取全部url_ids
+
+        :return: [url_id]
+        '''
+        sql = "SELECT rowid FROM url_list"
+        return self.cursor.execute(sql).fetchall()
+
     def calculate_page_rank(self, iterations=20):
         ''' 计算page_rank
 
@@ -295,7 +303,22 @@ class Crawler:
         for i in range(iterations):
             print "Iteration %d" % (i)
 
+            all_url_ids = self.get_all_url_ids()
 
+            for url_id in all_url_ids:
+                from_url_ids = self.get_from_url_ids(url_id)
+
+                page_rank_score = 0
+                for from_url_id in from_url_ids:
+                    score = self.get_page_rank_score(from_url_id)
+                    link_out_count = self.get_link_out_count(from_url_id)
+
+                    page_rank_score += 0.85 * score / link_out_count
+
+                self.set_page_rank_score(url_id, page_rank_score)
+
+        # 更新数据库
+        self.db_commit()
 
     def crawl(self, pages, depth=2):
         ''' 爬虫进行广度优先搜索, 并为网页建立索引
